@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next';
+import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { ThemeProvider } from '@/components/providers/theme-provider';
@@ -7,32 +7,22 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'SIHALINK | سيهالينك',
+    default: 'SIHALINK | صحة لينك',
     template: '%s | SIHALINK',
   },
-  description: 'منصة التنسيق الصحي والطوارئ الرقمية في الجزائر | Plateforme algérienne de coordination des urgences et de la santé',
-  keywords: ['emergency', 'healthcare', 'Algeria', 'طوارئ', 'صحة', 'الجزائر'],
-  authors: [{ name: 'SIHALINK' }],
+  description: 'منصة الطوارئ والرعاية الصحية الرقمية للجزائر',
+  keywords: ['طوارئ', 'صحة', 'أطباء', 'مواعيد', 'الجزائر', 'urgence', 'santé', 'emergency', 'healthcare'],
   openGraph: {
-    title: 'SIHALINK',
-    description: 'منصة التنسيق الصحي والطوارئ الرقمية',
     type: 'website',
     locale: 'ar_DZ',
+    alternateLocale: ['fr_DZ', 'en'],
+    title: 'SIHALINK',
+    description: 'منصة الطوارئ والرعاية الصحية الرقمية',
+    siteName: 'SIHALINK',
   },
   robots: {
-    index: false, // Keep private until launch
-    follow: false,
+    index: false, // Don't index dashboard pages
   },
-};
-
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#3B82F6' },
-    { media: '(prefers-color-scheme: dark)', color: '#1E3A8A' },
-  ],
 };
 
 export default async function RootLayout({
@@ -48,9 +38,13 @@ export default async function RootLayout({
     <html lang={locale} dir={dir} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body className="min-h-screen bg-background antialiased">
+      <body>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

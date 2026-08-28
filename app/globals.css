@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -12,8 +12,8 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
@@ -24,7 +24,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --ring: 217 91% 60%;
     --radius: 0.75rem;
   }
 
@@ -35,8 +35,8 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
@@ -57,61 +57,47 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Cairo', 'Inter', sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  /* Arabic RTL typography */
   [dir="rtl"] {
-    font-family: 'Cairo', sans-serif;
-    text-align: right;
+    font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
   }
+
   [dir="ltr"] {
-    font-family: 'Inter', 'Cairo', sans-serif;
-    text-align: left;
+    font-family: 'Inter', sans-serif;
   }
 }
 
 @layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Emergency pulse animation */
   .emergency-pulse {
-    animation: emergency-pulse 1.5s ease-in-out infinite;
+    animation: emergencyPulse 1.5s ease-in-out infinite;
   }
 
-  @keyframes emergency-pulse {
+  @keyframes emergencyPulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
-    50% { box-shadow: 0 0 0 16px rgba(220, 38, 38, 0); }
+    50% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
   }
 
-  .siha-card {
-    @apply bg-card rounded-xl border border-border shadow-sm;
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .emergency-pulse {
+      animation: none;
+    }
   }
 
-  .siha-btn-emergency {
-    @apply bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95;
-  }
-
-  .priority-critical {
-    @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300;
-  }
-  .priority-high {
-    @apply bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300;
-  }
-  .priority-medium {
-    @apply bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300;
-  }
-  .priority-low {
-    @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300;
-  }
-
-  /* RTL-aware flex */
-  [dir="rtl"] .rtl-flip {
+  /* RTL-aware spacing utilities */
+  .rtl\:flip {
     transform: scaleX(-1);
   }
 
-  /* Focus ring accessible */
-  .focus-ring {
-    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  [dir="rtl"] .rtl\:flip {
+    transform: scaleX(1);
   }
-
-  /* Scrollbar */
-  .scrollbar-thin::-webkit-scrollbar { width: 4px; }
-  .scrollbar-thin::-webkit-scrollbar-track { @apply bg-transparent; }
-  .scrollbar-thin::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
 }

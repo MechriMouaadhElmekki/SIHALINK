@@ -1,34 +1,46 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { updateSession } from '@/lib/supabase/middleware';
+import { createServerClient } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
 
-const PROTECTED_ROUTES = ['/dashboard', '/emergency', '/appointments', '/account', '/reports', '/admin', '/operator'];
-const AUTH_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
+const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/auth/callback'];
 const ADMIN_ROUTES = ['/admin'];
 const OPERATOR_ROUTES = ['/operator'];
 
 export async function middleware(request: NextRequest) {
-  const response = await updateSession(request);
-  const { pathname } = request.nextUrl;
+  let supabaseResponse = NextResponse.next({ request });
 
-  const isProtected = PROTECTED_ROUTES.some(r => pathname.startsWith(r));
-  const isAuthRoute = AUTH_ROUTES.some(r => pathname.startsWith(r));
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return request.cookies.getAll(); },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          supabaseResponse = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
 
-  if (!isProtected && !isAuthRoute) return response;
+  const { data: { user } } = await supabase.auth.getUser();
+  const pathname = request.nextUrl.pathname;
 
-  // Get session from cookies
-  const authCookie = request.cookies.get('sb-access-token') ||
-    request.cookies.getAll().find(c => c.name.includes('auth-token'));
+  const isPublic = PUBLIC_ROUTES.some(r => pathname.startsWith(r)) || pathname === '/';
 
-  // For protected routes without session, redirect to login
-  if (isProtected && !authCookie) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(loginUrl);
+  if (!user && !isPublic) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  return response;
+  if (user && (pathname === '/login' || pathname === '/register')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  return supabaseResponse;
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|public|api/health).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/public).*)'],
 };
