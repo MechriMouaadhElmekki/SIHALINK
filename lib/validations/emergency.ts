@@ -1,44 +1,26 @@
 import { z } from 'zod';
 
-export const EmergencyTypeSchema = z.enum([
-  'medical', 'accident', 'fire', 'pregnancy', 'child_emergency',
-  'elderly_emergency', 'unconscious', 'breathing_difficulty',
-  'chest_pain', 'severe_bleeding', 'other'
-]);
-
-export const ReportPrioritySchema = z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']);
-
-export const CreateReportSchema = z.object({
-  emergency_type: EmergencyTypeSchema,
-  additional_info: z.string().max(1000).optional(),
+export const emergencyReportSchema = z.object({
+  emergency_type: z.enum(['MEDICAL','ACCIDENT','FIRE','PREGNANCY','CHILD_EMERGENCY','ELDERLY','UNCONSCIOUS','BREATHING_DIFFICULTY','CHEST_PAIN','SEVERE_BLEEDING','OTHER']),
+  priority: z.enum(['CRITICAL','HIGH','MEDIUM','LOW']).optional(),
+  description: z.string().max(1000).optional(),
+  people_affected: z.number().min(1).max(100).default(1),
+  triage_answers: z.record(z.string(), z.union([z.string(), z.boolean(), z.number()])).optional(),
+  location: z.object({
+    latitude: z.number().min(-90).max(90),
+    longitude: z.number().min(-180).max(180),
+    accuracy: z.number().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    wilaya: z.string().optional(),
+    commune: z.string().optional(),
+    is_simulated: z.boolean().default(false),
+  }),
 });
 
-export const TriageAnswerSchema = z.object({
-  question_key: z.string().min(1),
-  question_text: z.string().min(1),
-  answer: z.string().min(1),
+export const cancelReportSchema = z.object({
+  reason: z.string().min(5, 'يرجى ذكر سبب الإلغاء').max(500),
 });
 
-export const LocationSchema = z.object({
-  latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180),
-  accuracy: z.number().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  wilaya: z.string().optional(),
-  commune: z.string().optional(),
-  is_manual: z.boolean().default(false),
-});
-
-export const SubmitReportSchema = z.object({
-  report_id: z.string().uuid(),
-  triage_answers: z.array(TriageAnswerSchema),
-  location: LocationSchema,
-  additional_info: z.string().max(1000).optional(),
-  priority: ReportPrioritySchema.optional(),
-});
-
-export const CancelReportSchema = z.object({
-  report_id: z.string().uuid(),
-  reason: z.string().min(1).max(500),
-});
+export type EmergencyReportInput = z.infer<typeof emergencyReportSchema>;
+export type CancelReportInput = z.infer<typeof cancelReportSchema>;
