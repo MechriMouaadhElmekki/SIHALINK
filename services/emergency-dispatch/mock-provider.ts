@@ -1,47 +1,50 @@
-import type { EmergencyDispatchProvider, EmergencySubmitPayload, EmergencyDispatchResult } from './types';
+import type { EmergencyDispatchProvider, DispatchResult } from './interface';
+import type { EmergencyReport } from '@/types/database';
 
-// ============================================================
-// MOCK Emergency Dispatch Provider
-// Used in development and demo mode ONLY.
-// This does NOT connect to any real emergency service.
-// When official Civil Protection / ambulance API credentials
-// are available, implement a real provider and set
-// EMERGENCY_DISPATCH_PROVIDER=civil_protection in production.
-// ============================================================
-
+/**
+ * MockEmergencyDispatchProvider
+ * 
+ * DEMO/DEVELOPMENT MODE ONLY.
+ * This provider simulates emergency dispatch WITHOUT connecting to any
+ * real emergency service, government system, Civil Protection, ambulance,
+ * police, or hospital.
+ *
+ * All responses are simulated. No real emergency is dispatched.
+ * Replace this with a real provider when official credentials are obtained.
+ */
 export class MockEmergencyDispatchProvider implements EmergencyDispatchProvider {
-  readonly providerName = 'MockEmergencyDispatchProvider';
-  readonly isSimulated = true;
+  private readonly SIMULATION_LABEL = '[SIMULATION - No real dispatch]';
 
-  async submitEmergency(payload: EmergencySubmitPayload): Promise<EmergencyDispatchResult> {
-    console.log('[MOCK DISPATCH] Emergency submitted (NOT sent to real services):', payload.reportNumber);
-    await this.simulateDelay();
+  async submitEmergency(report: EmergencyReport): Promise<DispatchResult> {
+    console.log(`${this.SIMULATION_LABEL} submitEmergency called for report ${report.report_number}`);
+    await this.simulateDelay(500);
     return {
       success: true,
-      dispatchId: `MOCK-${payload.reportId}`,
-      estimatedResponseMinutes: undefined,
-      message: '[SIMULATION] Report received by mock dispatch system. No real emergency services have been contacted.',
-      isSimulated: true,
+      externalId: `MOCK-${Date.now()}`,
+      message: this.SIMULATION_LABEL,
+      simulatedAt: new Date().toISOString(),
     };
   }
 
-  async updateEmergency(dispatchId: string, update: Partial<EmergencySubmitPayload>): Promise<EmergencyDispatchResult> {
-    console.log('[MOCK DISPATCH] Update for:', dispatchId);
-    await this.simulateDelay();
-    return { success: true, dispatchId, message: '[SIMULATION] Update acknowledged.', isSimulated: true };
+  async updateEmergency(externalId: string, _update: Partial<EmergencyReport>): Promise<DispatchResult> {
+    console.log(`${this.SIMULATION_LABEL} updateEmergency called for ${externalId}`);
+    await this.simulateDelay(200);
+    return { success: true, externalId, message: this.SIMULATION_LABEL };
   }
 
-  async cancelEmergency(dispatchId: string, reason: string): Promise<EmergencyDispatchResult> {
-    console.log('[MOCK DISPATCH] Cancel for:', dispatchId, reason);
-    await this.simulateDelay();
-    return { success: true, dispatchId, message: '[SIMULATION] Cancellation acknowledged.', isSimulated: true };
+  async cancelEmergency(externalId: string, reason: string): Promise<DispatchResult> {
+    console.log(`${this.SIMULATION_LABEL} cancelEmergency called for ${externalId}: ${reason}`);
+    await this.simulateDelay(200);
+    return { success: true, externalId, message: this.SIMULATION_LABEL };
   }
 
-  async getEmergencyStatus(dispatchId: string): Promise<{ status: string; isSimulated: boolean }> {
-    return { status: 'SIMULATED_RECEIVED', isSimulated: true };
+  async getEmergencyStatus(externalId: string): Promise<{ status: string; message: string }> {
+    return { status: 'SIMULATED', message: `${this.SIMULATION_LABEL} for ${externalId}` };
   }
 
-  private async simulateDelay(): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 300 + Math.random() * 500));
+  private simulateDelay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
+
+export const emergencyDispatchProvider = new MockEmergencyDispatchProvider();
