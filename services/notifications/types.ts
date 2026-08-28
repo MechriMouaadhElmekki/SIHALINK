@@ -1,24 +1,30 @@
-export interface NotificationPayload {
+export interface EmailPayload {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+}
+
+export interface SmsPayload {
+  to: string;
+  message: string;
+}
+
+export interface PushPayload {
   userId: string;
-  titleAr: string;
-  titleFr?: string;
-  titleEn?: string;
-  bodyAr: string;
-  bodyFr?: string;
-  bodyEn?: string;
-  entityType?: string;
-  entityId?: string;
-  notificationType: string;
+  title: string;
+  body: string;
+  data?: Record<string, string>;
 }
 
 export interface EmailProvider {
-  send(to: string, subject: string, html: string): Promise<void>;
+  send(payload: EmailPayload): Promise<{ success: boolean; id?: string }>;
 }
 
 export interface SmsProvider {
-  send(to: string, message: string): Promise<void>;
+  send(payload: SmsPayload): Promise<{ success: boolean; id?: string }>;
 }
 
 export interface PushProvider {
-  send(userId: string, title: string, body: string, data?: Record<string, string>): Promise<void>;
+  send(payload: PushPayload): Promise<{ success: boolean; id?: string }>;
 }

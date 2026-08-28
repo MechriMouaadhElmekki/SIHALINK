@@ -1,20 +1,13 @@
-// ============================================================
-// SIHALINK - Map Provider Interface
-// Allows Mapbox, Google Maps, or OpenStreetMap to be connected
-// without changing application logic.
-// ============================================================
-
-export interface Coordinates {
-  latitude: number;
-  longitude: number;
+export interface MapProvider {
+  name: string;
+  reverseGeocode(lat: number, lng: number): Promise<GeocodingResult>;
+  getStaticMapUrl(lat: number, lng: number, zoom?: number): string;
 }
 
-export interface MapProvider {
-  reverseGeocode(coords: Coordinates): Promise<{
-    address?: string;
-    city?: string;
-    wilaya?: string;
-    commune?: string;
-  }>;
-  getStaticMapUrl(coords: Coordinates, zoom?: number): string;
+export interface GeocodingResult {
+  address?: string;
+  city?: string;
+  wilaya?: string;
+  commune?: string;
+  formattedAddress?: string;
 }

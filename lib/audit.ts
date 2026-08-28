@@ -1,27 +1,32 @@
-import { getSupabaseServiceClient } from './supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { UserRole } from '@/types';
 
-export async function createAuditLog(params: {
-  actorId?: string;
-  actorRole?: string;
+interface AuditOptions {
+  actor_id?: string | null;
+  actor_email?: string | null;
+  actor_role?: UserRole | null;
   action: string;
-  entity: string;
-  entityId?: string;
-  metadata?: Record<string, unknown>;
-  ipAddress?: string;
-}) {
+  entity_type: string;
+  entity_id?: string | null;
+  metadata?: Record<string, unknown> | null;
+  ip_address?: string | null;
+}
+
+export async function writeAuditLog(opts: AuditOptions): Promise<void> {
   try {
-    const supabase = getSupabaseServiceClient();
+    const supabase = createAdminClient();
     await supabase.from('audit_logs').insert({
-      actor_id: params.actorId ?? null,
-      actor_role: params.actorRole ?? null,
-      action: params.action,
-      entity: params.entity,
-      entity_id: params.entityId ?? null,
-      metadata: params.metadata ?? null,
-      ip_address: params.ipAddress ?? null,
+      actor_id: opts.actor_id ?? null,
+      actor_email: opts.actor_email ?? null,
+      actor_role: opts.actor_role ?? null,
+      action: opts.action,
+      entity_type: opts.entity_type,
+      entity_id: opts.entity_id ?? null,
+      metadata: opts.metadata ?? null,
+      ip_address: opts.ip_address ?? null,
     });
-  } catch (e) {
-    // Audit log failure must never break the main flow
-    console.error('[AUDIT LOG ERROR]', e);
+  } catch (err) {
+    // Audit log failure should not break application flow
+    console.error('[AuditLog] Failed to write audit log:', err);
   }
 }

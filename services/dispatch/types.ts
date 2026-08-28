@@ -1,37 +1,26 @@
-// ============================================================
-// SIHALINK - Emergency Dispatch Provider Interface
-// This abstraction allows any real dispatch provider to be
-// connected later without changing core application logic.
-// ============================================================
+import { EmergencyPriority, EmergencyType, LocationData } from '@/types';
 
-export interface DispatchEmergencyInput {
-  reportNumber: string;
+export interface DispatchSubmitPayload {
   reportId: string;
-  emergencyType: string;
-  priority: string;
-  location: {
-    latitude: number;
-    longitude: number;
-    address?: string;
-    city?: string;
-    wilaya?: string;
-  };
-  triageAnswers: Array<{ question: string; answer: string }>;
-  additionalInfo?: string;
-  contactPhone?: string;
+  reportNumber: string;
+  emergencyType: EmergencyType;
+  priority: EmergencyPriority;
+  location: LocationData;
+  description?: string;
+  triageAnswers?: Record<string, string>;
 }
 
 export interface DispatchResult {
   success: boolean;
   dispatchId?: string;
-  estimatedResponseMinutes?: number;
-  message?: string;
+  estimatedArrival?: string;
+  message: string;
   isSimulated: boolean;
 }
 
 export interface EmergencyDispatchProvider {
-  submitEmergency(input: DispatchEmergencyInput): Promise<DispatchResult>;
-  updateEmergency(dispatchId: string, update: Partial<DispatchEmergencyInput>): Promise<DispatchResult>;
-  cancelEmergency(dispatchId: string, reason: string): Promise<DispatchResult>;
-  getEmergencyStatus(dispatchId: string): Promise<{ status: string; isSimulated: boolean }>;
+  submitEmergency(payload: DispatchSubmitPayload): Promise<DispatchResult>;
+  updateEmergency(reportId: string, updates: Partial<DispatchSubmitPayload>): Promise<DispatchResult>;
+  cancelEmergency(reportId: string, reason: string): Promise<DispatchResult>;
+  getEmergencyStatus(reportId: string): Promise<{ status: string; isSimulated: boolean }>;
 }

@@ -1,51 +1,60 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { format, formatDistanceToNow } from 'date-fns';
+import { ar, fr, enUS } from 'date-fns/locale';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatDate(date: string | Date, locale: string = 'ar-DZ'): string {
-  return new Intl.DateTimeFormat(locale, {
-    year: 'numeric', month: 'long', day: 'numeric',
-  }).format(new Date(date));
+export function formatDate(date: string | Date, locale: string = 'ar'): string {
+  const localeMap = { ar, fr, en: enUS };
+  return format(new Date(date), 'PPP', {
+    locale: localeMap[locale as keyof typeof localeMap] ?? ar,
+  });
 }
 
-export function formatDateTime(date: string | Date, locale: string = 'ar-DZ'): string {
-  return new Intl.DateTimeFormat(locale, {
-    year: 'numeric', month: 'long', day: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  }).format(new Date(date));
+export function formatRelativeTime(date: string | Date, locale: string = 'ar'): string {
+  const localeMap = { ar, fr, en: enUS };
+  return formatDistanceToNow(new Date(date), {
+    addSuffix: true,
+    locale: localeMap[locale as keyof typeof localeMap] ?? ar,
+  });
 }
 
-export function generateReportNumber(): string {
-  // Server-side generation preferred; this is a fallback display format
-  const year = new Date().getFullYear();
-  const rand = Math.floor(Math.random() * 999999).toString().padStart(6, '0');
-  return `SH-${year}-${rand}`;
+export function formatReportNumber(seq: number, year?: number): string {
+  const y = year ?? new Date().getFullYear();
+  return `SH-${y}-${String(seq).padStart(6, '0')}`;
 }
 
 export function getPriorityColor(priority: string): string {
-  switch (priority) {
-    case 'CRITICAL': return 'text-red-600 bg-red-50 border-red-200';
-    case 'HIGH': return 'text-orange-600 bg-orange-50 border-orange-200';
-    case 'MEDIUM': return 'text-amber-600 bg-amber-50 border-amber-200';
-    case 'LOW': return 'text-green-600 bg-green-50 border-green-200';
-    default: return 'text-gray-600 bg-gray-50 border-gray-200';
-  }
+  const map: Record<string, string> = {
+    CRITICAL: 'text-red-600 bg-red-50 border-red-200',
+    HIGH: 'text-orange-600 bg-orange-50 border-orange-200',
+    MEDIUM: 'text-yellow-600 bg-yellow-50 border-yellow-200',
+    LOW: 'text-green-600 bg-green-50 border-green-200',
+  };
+  return map[priority] ?? 'text-gray-600 bg-gray-50 border-gray-200';
 }
 
 export function getStatusColor(status: string): string {
-  switch (status) {
-    case 'SUBMITTED': return 'text-blue-600 bg-blue-50';
-    case 'RECEIVED': return 'text-indigo-600 bg-indigo-50';
-    case 'UNDER_REVIEW': return 'text-purple-600 bg-purple-50';
-    case 'ASSIGNED': return 'text-cyan-600 bg-cyan-50';
-    case 'IN_PROGRESS': return 'text-orange-600 bg-orange-50';
-    case 'RESOLVED': return 'text-green-600 bg-green-50';
-    case 'CANCELLED': return 'text-gray-600 bg-gray-50';
-    case 'REJECTED': return 'text-red-600 bg-red-50';
-    case 'CLOSED': return 'text-slate-600 bg-slate-50';
-    default: return 'text-gray-600 bg-gray-50';
-  }
+  const map: Record<string, string> = {
+    DRAFT: 'text-gray-600 bg-gray-50',
+    SUBMITTED: 'text-blue-600 bg-blue-50',
+    RECEIVED: 'text-blue-700 bg-blue-100',
+    UNDER_REVIEW: 'text-yellow-700 bg-yellow-50',
+    ASSIGNED: 'text-purple-600 bg-purple-50',
+    ACKNOWLEDGED: 'text-indigo-600 bg-indigo-50',
+    IN_PROGRESS: 'text-orange-600 bg-orange-50',
+    RESOLVED: 'text-green-600 bg-green-50',
+    CANCELLED: 'text-gray-500 bg-gray-50',
+    REJECTED: 'text-red-600 bg-red-50',
+    FALSE_REPORT_REVIEW: 'text-red-700 bg-red-100',
+    CLOSED: 'text-gray-700 bg-gray-100',
+  };
+  return map[status] ?? 'text-gray-600 bg-gray-50';
+}
+
+export function truncate(str: string, len: number): string {
+  return str.length > len ? str.slice(0, len) + '...' : str;
 }

@@ -1,32 +1,23 @@
-import { createClient } from '@/lib/supabase/server';
-import type { NotificationType } from '@/types/database';
+import { createAdminClient } from '@/lib/supabase/admin';
 
-export interface CreateNotificationParams {
-  userId: string;
-  type: NotificationType;
-  titleAr: string;
-  titleFr: string;
-  titleEn: string;
-  bodyAr: string;
-  bodyFr: string;
-  bodyEn: string;
-  relatedEntityType?: string;
-  relatedEntityId?: string;
+interface NotificationPayload {
+  user_id: string;
+  type: 'EMERGENCY_UPDATE' | 'APPOINTMENT_UPDATE' | 'SECURITY_ALERT' | 'SYSTEM_ANNOUNCEMENT' | 'ACCOUNT_NOTIFICATION';
+  title_ar: string;
+  title_fr: string;
+  title_en: string;
+  body_ar: string;
+  body_fr: string;
+  body_en: string;
+  related_entity_type?: string;
+  related_entity_id?: string;
 }
 
-export async function createNotification(params: CreateNotificationParams) {
-  const supabase = createClient();
-  const { error } = await supabase.from('notifications').insert({
-    user_id: params.userId,
-    type: params.type,
-    title_ar: params.titleAr,
-    title_fr: params.titleFr,
-    title_en: params.titleEn,
-    body_ar: params.bodyAr,
-    body_fr: params.bodyFr,
-    body_en: params.bodyEn,
-    related_entity_type: params.relatedEntityType ?? null,
-    related_entity_id: params.relatedEntityId ?? null,
-  });
-  if (error) console.error('[Notification Error]', error);
+export async function createNotification(payload: NotificationPayload): Promise<void> {
+  try {
+    const supabase = createAdminClient();
+    await supabase.from('notifications').insert(payload);
+  } catch (err) {
+    console.error('[Notifications] Failed to create notification:', err);
+  }
 }
