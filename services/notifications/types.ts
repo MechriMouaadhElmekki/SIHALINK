@@ -1,34 +1,24 @@
-// ============================================================
-// SIHALINK - Notification Provider Interfaces
-// ============================================================
-
-export interface EmailPayload {
-  to: string;
-  subject: string;
-  body: string;
-  html?: string;
-}
-
-export interface SmsPayload {
-  to: string;
-  message: string;
-}
-
-export interface PushPayload {
+export interface NotificationPayload {
   userId: string;
-  title: string;
-  body: string;
-  data?: Record<string, string>;
+  titleAr: string;
+  titleFr?: string;
+  titleEn?: string;
+  bodyAr: string;
+  bodyFr?: string;
+  bodyEn?: string;
+  entityType?: string;
+  entityId?: string;
+  notificationType: string;
 }
 
 export interface EmailProvider {
-  send(payload: EmailPayload): Promise<{ success: boolean; messageId?: string }>;
+  send(to: string, subject: string, html: string): Promise<void>;
 }
 
 export interface SmsProvider {
-  send(payload: SmsPayload): Promise<{ success: boolean; messageId?: string }>;
+  send(to: string, message: string): Promise<void>;
 }
 
 export interface PushProvider {
-  send(payload: PushPayload): Promise<{ success: boolean; messageId?: string }>;
+  send(userId: string, title: string, body: string, data?: Record<string, string>): Promise<void>;
 }

@@ -1,10 +1,4 @@
-// ============================================================
-// SIHALINK Emergency Dispatch Provider Interface
-// Replace MockEmergencyDispatchProvider with real provider
-// when official integration credentials are available.
-// ============================================================
-
-export interface EmergencySubmitPayload {
+export interface EmergencyDispatchPayload {
   reportId: string;
   reportNumber: string;
   emergencyType: string;
@@ -17,23 +11,21 @@ export interface EmergencySubmitPayload {
     wilaya?: string;
   };
   description?: string;
-  triageAnswers: Record<string, string>;
+  affectedCount: number;
   contactPhone?: string;
 }
 
 export interface EmergencyDispatchResult {
   success: boolean;
-  dispatchId?: string;
+  externalReferenceId?: string;
   estimatedResponseMinutes?: number;
-  message: string;
+  message?: string;
   isSimulated: boolean;
 }
 
 export interface EmergencyDispatchProvider {
-  readonly providerName: string;
-  readonly isSimulated: boolean;
-  submitEmergency(payload: EmergencySubmitPayload): Promise<EmergencyDispatchResult>;
-  updateEmergency(dispatchId: string, update: Partial<EmergencySubmitPayload>): Promise<EmergencyDispatchResult>;
-  cancelEmergency(dispatchId: string, reason: string): Promise<EmergencyDispatchResult>;
-  getEmergencyStatus(dispatchId: string): Promise<{ status: string; isSimulated: boolean }>;
+  submitEmergency(payload: EmergencyDispatchPayload): Promise<EmergencyDispatchResult>;
+  updateEmergency(reportId: string, update: Partial<EmergencyDispatchPayload>): Promise<EmergencyDispatchResult>;
+  cancelEmergency(reportId: string, reason: string): Promise<EmergencyDispatchResult>;
+  getEmergencyStatus(reportId: string): Promise<{ status: string; isSimulated: boolean }>;
 }

@@ -1,15 +1,14 @@
-export interface Coordinates {
+export interface MapLocation {
   latitude: number;
   longitude: number;
+  accuracy?: number;
+  address?: string;
+  city?: string;
+  wilaya?: string;
 }
 
 export interface MapProvider {
-  readonly providerName: string;
-  reverseGeocode(coords: Coordinates): Promise<{
-    address?: string;
-    city?: string;
-    wilaya?: string;
-    commune?: string;
-  }>;
-  getStaticMapUrl(coords: Coordinates, zoom?: number): string;
+  getCurrentLocation(): Promise<MapLocation>;
+  reverseGeocode(lat: number, lng: number): Promise<Partial<MapLocation>>;
+  getMapEmbedUrl(lat: number, lng: number): string;
 }

@@ -1,50 +1,42 @@
-import type { EmergencyDispatchProvider, DispatchResult } from './interface';
-import type { EmergencyReport } from '@/types/database';
+import type { EmergencyDispatchProvider, EmergencyDispatchPayload, EmergencyDispatchResult } from './types';
 
 /**
  * MockEmergencyDispatchProvider
  * 
- * DEMO/DEVELOPMENT MODE ONLY.
- * This provider simulates emergency dispatch WITHOUT connecting to any
- * real emergency service, government system, Civil Protection, ambulance,
- * police, or hospital.
- *
- * All responses are simulated. No real emergency is dispatched.
- * Replace this with a real provider when official credentials are obtained.
+ * ⚠️ SIMULATION ONLY - This provider simulates emergency dispatch.
+ * It does NOT connect to Civil Protection, ambulance services,
+ * police, hospitals, or any government emergency system.
+ * 
+ * Replace with a real provider when official integration credentials
+ * and agreements are obtained.
  */
 export class MockEmergencyDispatchProvider implements EmergencyDispatchProvider {
-  private readonly SIMULATION_LABEL = '[SIMULATION - No real dispatch]';
-
-  async submitEmergency(report: EmergencyReport): Promise<DispatchResult> {
-    console.log(`${this.SIMULATION_LABEL} submitEmergency called for report ${report.report_number}`);
-    await this.simulateDelay(500);
+  async submitEmergency(payload: EmergencyDispatchPayload): Promise<EmergencyDispatchResult> {
+    console.log('[MOCK DISPATCH] Emergency submitted:', payload.reportNumber);
+    // Simulate network delay
+    await new Promise(r => setTimeout(r, 500));
     return {
       success: true,
-      externalId: `MOCK-${Date.now()}`,
-      message: this.SIMULATION_LABEL,
-      simulatedAt: new Date().toISOString(),
+      externalReferenceId: `MOCK-${Date.now()}`,
+      estimatedResponseMinutes: Math.floor(Math.random() * 10) + 5,
+      message: 'SIMULATION: Emergency report registered in mock system. Not connected to real emergency services.',
+      isSimulated: true,
     };
   }
 
-  async updateEmergency(externalId: string, _update: Partial<EmergencyReport>): Promise<DispatchResult> {
-    console.log(`${this.SIMULATION_LABEL} updateEmergency called for ${externalId}`);
-    await this.simulateDelay(200);
-    return { success: true, externalId, message: this.SIMULATION_LABEL };
+  async updateEmergency(reportId: string): Promise<EmergencyDispatchResult> {
+    console.log('[MOCK DISPATCH] Emergency updated:', reportId);
+    return { success: true, message: 'SIMULATION: Update acknowledged.', isSimulated: true };
   }
 
-  async cancelEmergency(externalId: string, reason: string): Promise<DispatchResult> {
-    console.log(`${this.SIMULATION_LABEL} cancelEmergency called for ${externalId}: ${reason}`);
-    await this.simulateDelay(200);
-    return { success: true, externalId, message: this.SIMULATION_LABEL };
+  async cancelEmergency(reportId: string, reason: string): Promise<EmergencyDispatchResult> {
+    console.log('[MOCK DISPATCH] Emergency cancelled:', reportId, reason);
+    return { success: true, message: 'SIMULATION: Cancellation acknowledged.', isSimulated: true };
   }
 
-  async getEmergencyStatus(externalId: string): Promise<{ status: string; message: string }> {
-    return { status: 'SIMULATED', message: `${this.SIMULATION_LABEL} for ${externalId}` };
-  }
-
-  private simulateDelay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  async getEmergencyStatus(reportId: string): Promise<{ status: string; isSimulated: boolean }> {
+    return { status: 'MOCK_RECEIVED', isSimulated: true };
   }
 }
 
-export const emergencyDispatchProvider = new MockEmergencyDispatchProvider();
+export const emergencyDispatch = new MockEmergencyDispatchProvider();
