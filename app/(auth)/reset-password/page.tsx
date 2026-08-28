@@ -1,32 +1,36 @@
 "use client";
 import React, { useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/lib/supabase/client';
 
-const schema = z.object({ email: z.string().email('البريد الإلكتروني غير صحيح') });
+const schema = z.object({
+  password: z.string().min(8, 'كلمة المرور يجب أن تكون 8 أحرف على الأقل'),
+  confirm: z.string(),
+}).refine(d => d.password === d.confirm, { message: 'كلمتا المرور غير متطابقتين', path: ['confirm'] });
+
 type Form = z.infer<typeof schema>;
 
-export default function ForgotPasswordPage() {
+export default function ResetPasswordPage() {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const supabase = createClient();
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<Form>({ resolver: zodResolver(schema) });
 
-  const onSubmit = async ({ email }: Form) => {
+  const onSubmit = async ({ password }: Form) => {
     setError(null);
-    const { error: e } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    if (e) { setError('حدث خطأ. يرجى المحاولة مجدداً.'); return; }
+    const { error: e } = await supabase.auth.updateUser({ password });
+    if (e) { setError('حدث خطأ أثناء تحديث كلمة المرور.'); return; }
     setSuccess(true);
+    setTimeout(() => router.push('/login'), 2000);
   };
 
   return (
@@ -37,34 +41,31 @@ export default function ForgotPasswordPage() {
           <h1 className="text-2xl font-bold text-primary">SIHALINK</h1>
         </div>
         <Card className="shadow-xl border-0">
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-xl">استعادة كلمة المرور</CardTitle>
-            <CardDescription>
-              {success ? 'تم إرسال رابط الاستعادة' : 'أدخل بريدك الإلكتروني لاستعادة كلمة المرور'}
-            </CardDescription>
-          </CardHeader>
+          <CardHeader className="text-center pb-2"><CardTitle className="text-xl">تعيين كلمة مرور جديدة</CardTitle></CardHeader>
           <CardContent>
             {success ? (
               <div className="text-center space-y-4">
                 <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto" />
-                <p className="text-sm text-muted-foreground">تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني. يرجى التحقق من صندوق الوارد.</p>
-                <Button asChild variant="outline" className="w-full">
-                  <Link href="/login"><ArrowRight className="h-4 w-4 me-2" />العودة لتسجيل الدخول</Link>
-                </Button>
+                <p className="font-medium">تم تغيير كلمة المرور بنجاح!</p>
+                <p className="text-sm text-muted-foreground">سيتم تحويلك لصفحة تسجيل الدخول...</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 {error && <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm"><AlertCircle className="h-4 w-4" /><span>{error}</span></div>}
                 <div className="space-y-2">
-                  <Label htmlFor="email">البريد الإلكتروني</Label>
-                  <Input id="email" type="email" dir="ltr" placeholder="example@email.com" {...register('email')} />
-                  {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
+                  <Label>كلمة المرور الجديدة</Label>
+                  <Input type="password" {...register('password')} />
+                  {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label>تأكيد كلمة المرور</Label>
+                  <Input type="password" {...register('confirm')} />
+                  {errors.confirm && <p className="text-xs text-destructive">{errors.confirm.message}</p>}
                 </div>
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : null}
-                  {isSubmitting ? 'جارٍ الإرسال...' : 'إرسال رابط الاستعادة'}
+                  {isSubmitting ? 'جارٍ التحديث...' : 'تحديث كلمة المرور'}
                 </Button>
-                <div className="text-center"><Link href="/login" className="text-sm text-primary hover:underline">العودة لتسجيل الدخول</Link></div>
               </form>
             )}
           </CardContent>
