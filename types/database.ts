@@ -1,36 +1,34 @@
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
 export type UserRole = 'USER' | 'DOCTOR' | 'HEALTHCARE_PROVIDER' | 'EMERGENCY_OPERATOR' | 'ADMIN' | 'SUPER_ADMIN';
-export type AccountStatus = 'ACTIVE' | 'SUSPENDED' | 'RESTRICTED' | 'DELETED';
-export type GenderType = 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
-export type BloodType = 'A_POS' | 'A_NEG' | 'B_POS' | 'B_NEG' | 'AB_POS' | 'AB_NEG' | 'O_POS' | 'O_NEG' | 'UNKNOWN';
-export type EmergencyType = 'MEDICAL' | 'ACCIDENT' | 'FIRE' | 'MATERNITY' | 'CHILD_EMERGENCY' | 'ELDERLY_EMERGENCY' | 'UNCONSCIOUS' | 'BREATHING_DIFFICULTY' | 'CHEST_PAIN' | 'SEVERE_BLEEDING' | 'OTHER';
+export type EmergencyType = 'MEDICAL' | 'ACCIDENT' | 'FIRE' | 'PREGNANCY' | 'CHILD' | 'ELDERLY' | 'UNCONSCIOUS' | 'BREATHING' | 'CHEST_PAIN' | 'BLEEDING' | 'OTHER';
 export type EmergencyPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 export type ReportStatus = 'DRAFT' | 'SUBMITTED' | 'RECEIVED' | 'UNDER_REVIEW' | 'ASSIGNED' | 'ACKNOWLEDGED' | 'IN_PROGRESS' | 'RESOLVED' | 'CANCELLED' | 'REJECTED' | 'FALSE_REPORT_REVIEW' | 'CLOSED';
 export type AppointmentStatus = 'REQUESTED' | 'CONFIRMED' | 'RESCHEDULED' | 'CANCELLED_BY_USER' | 'CANCELLED_BY_DOCTOR' | 'COMPLETED' | 'NO_SHOW';
-export type ConsultationType = 'IN_PERSON' | 'ONLINE' | 'BOTH';
-export type FacilityType = 'HOSPITAL' | 'CLINIC' | 'MEDICAL_CENTER' | 'EMERGENCY_DEPT' | 'IMAGING_CENTER' | 'REHABILITATION' | 'OTHER';
-export type VerificationStatus = 'PENDING' | 'VERIFIED' | 'REJECTED' | 'DEMO';
+export type FacilityType = 'HOSPITAL' | 'CLINIC' | 'MEDICAL_CENTER' | 'EMERGENCY_DEPARTMENT' | 'PHARMACY' | 'LABORATORY' | 'IMAGING_CENTER';
+export type Gender = 'MALE' | 'FEMALE' | 'OTHER' | 'PREFER_NOT_TO_SAY';
+export type BloodType = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
 export type NotificationType = 'EMERGENCY_UPDATE' | 'APPOINTMENT_UPDATE' | 'SECURITY_ALERT' | 'SYSTEM_ANNOUNCEMENT' | 'ACCOUNT_NOTIFICATION';
-export type ReviewStatus = 'DRAFT' | 'PENDING_REVIEW' | 'REVIEWED' | 'PUBLISHED';
-export type SuspensionType = 'WARNING' | 'TEMPORARY' | 'RESTRICTION' | 'PERMANENT_REVIEW';
-export type FalseReportType = 'ACCIDENTAL' | 'INTENTIONAL' | 'UNDER_REVIEW';
-export type ReportEventType = 'REPORT_CREATED' | 'TRIAGE_COMPLETED' | 'LOCATION_CONFIRMED' | 'REPORT_SUBMITTED' | 'REPORT_RECEIVED' | 'REVIEW_STARTED' | 'OPERATOR_ASSIGNED' | 'OPERATOR_ACKNOWLEDGED' | 'RESPONSE_STARTED' | 'STATUS_UPDATE' | 'OPERATOR_NOTE' | 'REPORT_RESOLVED' | 'REPORT_CANCELLED' | 'REPORT_REJECTED' | 'FALSE_REPORT_FLAGGED' | 'FALSE_REPORT_RESOLVED' | 'MEDIA_ATTACHED';
+export type SuspensionType = 'WARNING' | 'TEMPORARY' | 'LONG_TERM' | 'RESTRICTED';
+export type ConsultationType = 'IN_PERSON' | 'VIDEO' | 'PHONE';
+export type VerificationStatus = 'PENDING' | 'VERIFIED' | 'REJECTED' | 'DEMO';
 
 export interface Profile {
   id: string;
-  first_name: string;
-  last_name: string;
-  phone?: string;
-  date_of_birth?: string;
-  gender?: GenderType;
-  blood_type?: BloodType;
-  address?: string;
-  city?: string;
-  wilaya?: string;
-  profile_photo_url?: string;
+  first_name: string | null;
+  last_name: string | null;
+  phone: string | null;
+  email: string;
+  date_of_birth: string | null;
+  gender: Gender | null;
+  blood_type: BloodType | null;
+  address: string | null;
+  city: string | null;
+  wilaya: string | null;
+  profile_photo: string | null;
   preferred_language: 'ar' | 'fr' | 'en';
-  emergency_notes?: string;
-  account_status: AccountStatus;
-  role: UserRole;
+  emergency_notes: string | null;
+  account_status: 'ACTIVE' | 'SUSPENDED' | 'RESTRICTED' | 'DELETED';
   is_demo: boolean;
   created_at: string;
   updated_at: string;
@@ -42,7 +40,7 @@ export interface TrustedContact {
   name: string;
   relationship: string;
   phone: string;
-  email?: string;
+  email: string | null;
   priority: number;
   is_primary: boolean;
   created_at: string;
@@ -56,14 +54,11 @@ export interface EmergencyReport {
   emergency_type: EmergencyType;
   priority: EmergencyPriority;
   status: ReportStatus;
-  description?: string;
-  affected_count: number;
-  additional_info?: string;
-  assigned_operator_id?: string;
+  description: string | null;
+  additional_info: string | null;
+  operator_id: string | null;
+  operator_notes: string | null;
   is_demo: boolean;
-  cancelled_at?: string;
-  cancelled_reason?: string;
-  resolved_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -73,42 +68,54 @@ export interface EmergencyLocation {
   report_id: string;
   latitude: number;
   longitude: number;
-  accuracy?: number;
-  address?: string;
-  city?: string;
-  wilaya?: string;
-  commune?: string;
-  is_manual: boolean;
+  accuracy: number | null;
+  address: string | null;
+  city: string | null;
+  wilaya: string | null;
+  commune: string | null;
   captured_at: string;
+  is_simulated: boolean;
+}
+
+export interface EmergencyTriageAnswer {
+  id: string;
+  report_id: string;
+  question_key: string;
+  answer: string;
+  created_at: string;
+}
+
+export interface EmergencyReportEvent {
+  id: string;
+  report_id: string;
+  event_type: string;
+  actor_id: string | null;
+  actor_role: UserRole | null;
+  description: string | null;
+  metadata: Json | null;
   created_at: string;
 }
 
 export interface Doctor {
   id: string;
-  user_id?: string;
+  user_id: string | null;
   first_name: string;
   last_name: string;
-  photo_url?: string;
-  bio?: string;
+  photo: string | null;
+  bio: string | null;
   languages: string[];
-  gender?: GenderType;
-  years_experience?: number;
-  consultation_type: ConsultationType;
-  consultation_fee?: number;
-  city?: string;
-  wilaya?: string;
-  address?: string;
-  phone?: string;
-  email?: string;
+  gender: Gender | null;
+  experience_years: number | null;
+  facility_id: string | null;
+  city: string | null;
+  wilaya: string | null;
+  consultation_types: ConsultationType[];
   verification_status: VerificationStatus;
-  is_active: boolean;
+  is_available: boolean;
   is_demo: boolean;
-  facility_id?: string;
-  rating?: number;
-  rating_count: number;
+  rating: number | null;
   created_at: string;
   updated_at: string;
-  specialties?: Specialty[];
 }
 
 export interface Specialty {
@@ -116,46 +123,55 @@ export interface Specialty {
   name_ar: string;
   name_fr: string;
   name_en: string;
-  slug: string;
-  icon?: string;
+  icon: string | null;
+  created_at: string;
+}
+
+export interface DoctorSpecialty {
+  id: string;
+  doctor_id: string;
+  specialty_id: string;
+  is_primary: boolean;
+}
+
+export interface DoctorAvailability {
+  id: string;
+  doctor_id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  slot_duration_minutes: number;
   is_active: boolean;
 }
 
 export interface Appointment {
   id: string;
-  user_id: string;
+  patient_id: string;
   doctor_id: string;
   appointment_date: string;
-  start_time: string;
-  end_time: string;
+  appointment_time: string;
+  duration_minutes: number;
   consultation_type: ConsultationType;
   status: AppointmentStatus;
-  reason?: string;
-  notes?: string;
-  is_demo: boolean;
+  reason: string | null;
+  notes: string | null;
   created_at: string;
   updated_at: string;
-  doctor?: Doctor;
 }
 
 export interface HealthcareFacility {
   id: string;
-  name_ar: string;
-  name_fr?: string;
-  name_en?: string;
-  facility_type: FacilityType;
-  description?: string;
-  phone?: string;
-  email?: string;
-  website?: string;
+  name: string;
+  type: FacilityType;
+  description: string | null;
+  phone: string | null;
   address: string;
   city: string;
   wilaya: string;
-  latitude?: number;
-  longitude?: number;
-  opening_hours: Record<string, string>;
-  has_emergency: boolean;
-  is_active: boolean;
+  latitude: number | null;
+  longitude: number | null;
+  opening_hours: Json | null;
+  emergency_available: boolean;
   verification_status: VerificationStatus;
   is_demo: boolean;
   created_at: string;
@@ -164,18 +180,16 @@ export interface HealthcareFacility {
 
 export interface Pharmacy {
   id: string;
-  name_ar: string;
-  name_fr?: string;
-  phone?: string;
+  name: string;
+  phone: string | null;
   address: string;
   city: string;
   wilaya: string;
-  latitude?: number;
-  longitude?: number;
-  opening_hours: Record<string, string>;
+  latitude: number | null;
+  longitude: number | null;
+  opening_hours: Json | null;
   is_24h: boolean;
-  is_duty: boolean;
-  is_active: boolean;
+  services: string[];
   is_demo: boolean;
   created_at: string;
   updated_at: string;
@@ -183,38 +197,19 @@ export interface Pharmacy {
 
 export interface Laboratory {
   id: string;
-  name_ar: string;
-  name_fr?: string;
-  phone?: string;
+  name: string;
+  phone: string | null;
   address: string;
   city: string;
   wilaya: string;
-  latitude?: number;
-  longitude?: number;
-  opening_hours: Record<string, string>;
+  latitude: number | null;
+  longitude: number | null;
+  opening_hours: Json | null;
   services: string[];
   requires_appointment: boolean;
-  is_active: boolean;
   is_demo: boolean;
   created_at: string;
   updated_at: string;
-}
-
-export interface Notification {
-  id: string;
-  user_id: string;
-  notification_type: NotificationType;
-  title_ar: string;
-  title_fr?: string;
-  title_en?: string;
-  body_ar: string;
-  body_fr?: string;
-  body_en?: string;
-  entity_type?: string;
-  entity_id?: string;
-  is_read: boolean;
-  read_at?: string;
-  created_at: string;
 }
 
 export interface FirstAidCategory {
@@ -222,33 +217,35 @@ export interface FirstAidCategory {
   name_ar: string;
   name_fr: string;
   name_en: string;
-  slug: string;
-  icon?: string;
-  description_ar?: string;
+  icon: string;
+  color: string;
   sort_order: number;
-  is_active: boolean;
+  created_at: string;
 }
 
 export interface FirstAidGuide {
   id: string;
   category_id: string;
   title_ar: string;
-  title_fr?: string;
-  title_en?: string;
-  warning_ar?: string;
-  warning_fr?: string;
-  when_to_call_ar?: string;
-  when_to_call_fr?: string;
-  do_not_do_ar?: string;
-  do_not_do_fr?: string;
-  source?: string;
-  review_status: ReviewStatus;
-  reviewed_by?: string;
-  reviewed_at?: string;
+  title_fr: string;
+  title_en: string;
+  warning_ar: string | null;
+  warning_fr: string | null;
+  warning_en: string | null;
+  call_emergency_when_ar: string | null;
+  call_emergency_when_fr: string | null;
+  call_emergency_when_en: string | null;
+  do_not_do_ar: string | null;
+  do_not_do_fr: string | null;
+  do_not_do_en: string | null;
+  source: string | null;
+  review_status: 'DRAFT' | 'PENDING_REVIEW' | 'REVIEWED' | 'PUBLISHED';
+  reviewed_by: string | null;
+  review_date: string | null;
   version: number;
-  is_active: boolean;
-  steps?: FirstAidStep[];
-  category?: FirstAidCategory;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface FirstAidStep {
@@ -256,20 +253,64 @@ export interface FirstAidStep {
   guide_id: string;
   step_number: number;
   instruction_ar: string;
-  instruction_fr?: string;
-  instruction_en?: string;
-  image_url?: string;
+  instruction_fr: string;
+  instruction_en: string;
+  image_url: string | null;
+  is_critical: boolean;
+}
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title_ar: string;
+  title_fr: string;
+  title_en: string;
+  body_ar: string;
+  body_fr: string;
+  body_en: string;
+  is_read: boolean;
+  related_entity_type: string | null;
+  related_entity_id: string | null;
+  created_at: string;
 }
 
 export interface AuditLog {
   id: string;
-  actor_id?: string;
-  actor_role?: UserRole;
+  actor_id: string | null;
+  actor_email: string | null;
+  actor_role: UserRole | null;
   action: string;
-  entity_type?: string;
-  entity_id?: string;
-  metadata: Record<string, unknown>;
-  ip_address?: string;
-  user_agent?: string;
+  entity_type: string;
+  entity_id: string | null;
+  metadata: Json | null;
+  ip_address: string | null;
   created_at: string;
+}
+
+export interface FalseReportCase {
+  id: string;
+  report_id: string;
+  reported_by: string | null;
+  reason: string;
+  evidence: string | null;
+  case_type: 'ACCIDENTAL' | 'INTENTIONAL' | 'UNDER_REVIEW';
+  reviewer_id: string | null;
+  decision: string | null;
+  resolved_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Suspension {
+  id: string;
+  user_id: string;
+  type: SuspensionType;
+  reason: string;
+  issued_by: string;
+  starts_at: string;
+  ends_at: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }

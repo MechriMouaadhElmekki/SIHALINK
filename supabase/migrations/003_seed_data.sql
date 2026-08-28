@@ -1,331 +1,159 @@
--- SIHALINK Seed Data
--- Migration 003: Demo/Development Seed Data
--- ALL DATA IN THIS FILE IS FICTIONAL AND FOR DEMONSTRATION PURPOSES ONLY
--- No real doctors, hospitals, or providers are represented
-
 -- ============================================================
--- SYSTEM SETTINGS
+-- SIHALINK Seed Data - Migration 003
+-- Demo/test data for Algeria
+-- ALL DATA IS FICTIONAL - for demo purposes only
 -- ============================================================
-
-INSERT INTO system_settings (key, value, description) VALUES
-('demo_mode', '{"enabled": true}', 'Demo mode configuration'),
-('emergency_dispatch_provider', '{"provider": "mock", "version": "1.0"}', 'Emergency dispatch provider'),
-('map_provider', '{"provider": "openstreetmap"}', 'Map provider configuration'),
-('max_file_size_mb', '{"value": 50}', 'Maximum file upload size in MB'),
-('max_files_per_report', '{"value": 5}', 'Maximum files per emergency report'),
-('report_cancellation_window_minutes', '{"value": 5}', 'Window to cancel a submitted report');
 
 -- ============================================================
 -- SPECIALTIES
 -- ============================================================
-
-INSERT INTO specialties (name_ar, name_fr, name_en, slug, icon) VALUES
-('طب عام', 'Médecine générale', 'General Medicine', 'general-medicine', 'stethoscope'),
-('طب الطوارئ', 'Médecine d''urgence', 'Emergency Medicine', 'emergency-medicine', 'zap'),
-('طب القلب', 'Cardiologie', 'Cardiology', 'cardiology', 'heart'),
-('طب الأطفال', 'Pédiatrie', 'Pediatrics', 'pediatrics', 'baby'),
-('الجراحة العامة', 'Chirurgie générale', 'General Surgery', 'general-surgery', 'scissors'),
-('طب النساء والتوليد', 'Gynécologie-Obstétrique', 'Gynecology & Obstetrics', 'gynecology', 'users'),
-('طب العظام', 'Orthopédie', 'Orthopedics', 'orthopedics', 'bone'),
-('طب العيون', 'Ophtalmologie', 'Ophthalmology', 'ophthalmology', 'eye'),
-('طب الأعصاب', 'Neurologie', 'Neurology', 'neurology', 'brain'),
-('طب النفس', 'Psychiatrie', 'Psychiatry', 'psychiatry', 'mind'),
-('جلدية', 'Dermatologie', 'Dermatology', 'dermatology', 'shield'),
-('طب الأسنان', 'Dentisterie', 'Dentistry', 'dentistry', 'smile'),
-('طب الكلى', 'Néphrologie', 'Nephrology', 'nephrology', 'droplet'),
-('طب الرئة', 'Pneumologie', 'Pulmonology', 'pulmonology', 'wind'),
-('طب الغدد الصماء', 'Endocrinologie', 'Endocrinology', 'endocrinology', 'activity');
+INSERT INTO specialties (id, name_ar, name_fr, name_en, icon) VALUES
+  ('a1000000-0000-0000-0000-000000000001', 'طب عام', 'Médecine générale', 'General Medicine', 'stethoscope'),
+  ('a1000000-0000-0000-0000-000000000002', 'طب الأطفال', 'Pédiatrie', 'Pediatrics', 'baby'),
+  ('a1000000-0000-0000-0000-000000000003', 'أمراض القلب', 'Cardiologie', 'Cardiology', 'heart'),
+  ('a1000000-0000-0000-0000-000000000004', 'طب العيون', 'Ophtalmologie', 'Ophthalmology', 'eye'),
+  ('a1000000-0000-0000-0000-000000000005', 'الجراحة العامة', 'Chirurgie générale', 'General Surgery', 'scissors'),
+  ('a1000000-0000-0000-0000-000000000006', 'أمراض النساء والتوليد', 'Gynécologie-obstétrique', 'Gynecology & Obstetrics', 'activity'),
+  ('a1000000-0000-0000-0000-000000000007', 'طب الأسنان', 'Dentisterie', 'Dentistry', 'smile'),
+  ('a1000000-0000-0000-0000-000000000008', 'أمراض العظام', 'Orthopédie', 'Orthopedics', 'bone'),
+  ('a1000000-0000-0000-0000-000000000009', 'الأمراض الجلدية', 'Dermatologie', 'Dermatology', 'shield'),
+  ('a1000000-0000-0000-0000-000000000010', 'الطب النفسي', 'Psychiatrie', 'Psychiatry', 'brain'),
+  ('a1000000-0000-0000-0000-000000000011', 'طب الطوارئ', 'Médecine d''urgence', 'Emergency Medicine', 'alert-circle'),
+  ('a1000000-0000-0000-0000-000000000012', 'أمراض الجهاز الهضمي', 'Gastroentérologie', 'Gastroenterology', 'activity');
 
 -- ============================================================
--- DEMO DOCTORS (fictional - clearly marked)
+-- HEALTHCARE FACILITIES (Demo - Fictional)
 -- ============================================================
-
-INSERT INTO doctors (
-  first_name, last_name, bio_ar, bio_fr, bio_en,
-  phone, languages, gender, experience_years,
-  consultation_type, consultation_fee, city, wilaya,
-  is_verified, is_active, is_demo
-) VALUES
-(
-  'أمين', 'بوعزيز',
-   'طبيب عام ذو خبرة واسعة في الطب الوقائي والعلاجي. [بيانات تجريبية]',
-  'Médecin généraliste avec vaste expérience. [Données démo]',
-  'General practitioner with extensive experience. [Demo data]',
-  '+213 21 000 001', ARRAY['ar', 'fr'], 'MALE', 15,
-  'BOTH', 1500.00, 'الجزائر العاصمة', 'الجزائر',
-  TRUE, TRUE, TRUE
-),
-(
-  'سارة', 'بن علي',
-  'طبيبة متخصصة في طب القلب مع خبرة في الحالات الحرجة. [بيانات تجريبية]',
-  'Cardiologue spécialisée. [Données démo]',
-  'Cardiologist specialized in critical cases. [Demo data]',
-  '+213 21 000 002', ARRAY['ar', 'fr', 'en'], 'FEMALE', 12,
-  'IN_PERSON', 3000.00, 'الجزائر العاصمة', 'الجزائر',
-  TRUE, TRUE, TRUE
-),
-(
-  'كريم', 'حداد',
-  'طبيب أطفال متخصص في رعاية حديثي الولادة. [بيانات تجريبية]',
-  'Pédiatre spécialisé en néonatologie. [Données démo]',
-  'Pediatrician specialized in neonatology. [Demo data]',
-  '+213 41 000 001', ARRAY['ar', 'fr'], 'MALE', 10,
-  'IN_PERSON', 2000.00, 'وهران', 'وهران',
-  TRUE, TRUE, TRUE
-),
-(
-  'فاطمة', 'زهراء',
-  'طبيبة عامة في سطيف متاحة للاستشارات عن بعد. [بيانات تجريبية]',
-  'Médecin généraliste à Sétif. [Données démo]',
-  'General practitioner in Sétif. [Demo data]',
-  '+213 36 000 001', ARRAY['ar', 'fr'], 'FEMALE', 8,
-  'BOTH', 1200.00, 'سطيف', 'سطيف',
-  TRUE, TRUE, TRUE
-),
-(
-  'يوسف', 'مسعود',
-  'جراح عام خبير في جراحة الطوارئ. [بيانات تجريبية]',
-  'Chirurgien général expert. [Données démo]',
-  'General surgeon with emergency expertise. [Demo data]',
-  '+213 25 000 001', ARRAY['ar', 'fr'], 'MALE', 20,
-  'IN_PERSON', 5000.00, 'قسنطينة', 'قسنطينة',
-  TRUE, TRUE, TRUE
-);
+INSERT INTO healthcare_facilities (id, name, type, description, phone, address, city, wilaya, latitude, longitude, emergency_available, verification_status, is_demo) VALUES
+  ('b1000000-0000-0000-0000-000000000001', 'مستشفى مصطفى باشا التجريبي [ديمو]', 'HOSPITAL', 'مستشفى تجريبي - بيانات ديمو فقط', '+213-21-000001', 'شارع الاستقلال', 'الجزائر العاصمة', 'الجزائر', 36.7372, 3.0865, true, 'DEMO', true),
+  ('b1000000-0000-0000-0000-000000000002', 'عيادة الأمل التجريبية [ديمو]', 'CLINIC', 'عيادة تجريبية - بيانات ديمو فقط', '+213-21-000002', 'حي باب الواد', 'الجزائر العاصمة', 'الجزائر', 36.7523, 3.0471, false, 'DEMO', true),
+  ('b1000000-0000-0000-0000-000000000003', 'مستشفى سيدي بلعباس التجريبي [ديمو]', 'HOSPITAL', 'مستشفى تجريبي - بيانات ديمو فقط', '+213-48-000001', 'شارع الجيش', 'سيدي بلعباس', 'سيدي بلعباس', 35.1897, -0.6308, true, 'DEMO', true),
+  ('b1000000-0000-0000-0000-000000000004', 'المستشفى الجامعي قسنطينة [ديمو]', 'HOSPITAL', 'مستشفى تجريبي - بيانات ديمو فقط', '+213-31-000001', 'شارع 1 نوفمبر', 'قسنطينة', 'قسنطينة', 36.3650, 6.6147, true, 'DEMO', true),
+  ('b1000000-0000-0000-0000-000000000005', 'مركز الأمومة والطفولة سطيف [ديمو]', 'MEDICAL_CENTER', 'مركز طبي تجريبي - بيانات ديمو فقط', '+213-36-000001', 'حي 8 ماي 1945', 'سطيف', 'سطيف', 36.1897, 5.4139, false, 'DEMO', true),
+  ('b1000000-0000-0000-0000-000000000006', 'مستشفى فرانس فانون البليدة [ديمو]', 'HOSPITAL', 'مستشفى تجريبي - بيانات ديمو فقط', '+213-25-000001', 'شارع العربي بن مهيدي', 'البليدة', 'البليدة', 36.4698, 2.8281, true, 'DEMO', true),
+  ('b1000000-0000-0000-0000-000000000007', 'مستشفى وهران الجامعي [ديمو]', 'HOSPITAL', 'مستشفى تجريبي - بيانات ديمو فقط', '+213-41-000001', 'شارع لاروس', 'وهران', 'وهران', 35.6969, -0.6331, true, 'DEMO', true),
+  ('b1000000-0000-0000-0000-000000000008', 'مركز طوارئ عنابة [ديمو]', 'EMERGENCY_DEPARTMENT', 'قسم طوارئ تجريبي - بيانات ديمو فقط', '+213-38-000001', 'حي الحجار', 'عنابة', 'عنابة', 36.9000, 7.7667, true, 'DEMO', true);
 
 -- ============================================================
--- DEMO HEALTHCARE FACILITIES
+-- DOCTORS (Demo - Completely Fictional)
 -- ============================================================
+INSERT INTO doctors (id, first_name, last_name, bio, languages, gender, experience_years, facility_id, city, wilaya, consultation_types, verification_status, is_available, is_demo, rating) VALUES
+  ('c1000000-0000-0000-0000-000000000001', 'أحمد [ديمو]', 'بن عمر', 'طبيب عام متخصص في طب الأسرة - بيانات تجريبية فقط، غير حقيقي', ARRAY['ar','fr'], 'MALE', 12, 'b1000000-0000-0000-0000-000000000001', 'الجزائر العاصمة', 'الجزائر', ARRAY['IN_PERSON','VIDEO']::consultation_type[], 'DEMO', true, true, 4.5),
+  ('c1000000-0000-0000-0000-000000000002', 'فاطمة [ديمو]', 'حمدي', 'طبيبة أطفال متخصصة - بيانات تجريبية فقط، غير حقيقية', ARRAY['ar','fr','en'], 'FEMALE', 8, 'b1000000-0000-0000-0000-000000000002', 'الجزائر العاصمة', 'الجزائر', ARRAY['IN_PERSON','PHONE']::consultation_type[], 'DEMO', true, true, 4.8),
+  ('c1000000-0000-0000-0000-000000000003', 'كريم [ديمو]', 'مزياني', 'طبيب قلب - بيانات تجريبية فقط، غير حقيقي', ARRAY['ar','fr'], 'MALE', 15, 'b1000000-0000-0000-0000-000000000007', 'وهران', 'وهران', ARRAY['IN_PERSON']::consultation_type[], 'DEMO', true, true, 4.3),
+  ('c1000000-0000-0000-0000-000000000004', 'سارة [ديمو]', 'بلقاسم', 'طبيبة نساء وتوليد - بيانات تجريبية فقط، غير حقيقية', ARRAY['ar','fr'], 'FEMALE', 10, 'b1000000-0000-0000-0000-000000000005', 'سطيف', 'سطيف', ARRAY['IN_PERSON','VIDEO']::consultation_type[], 'DEMO', true, true, 4.7),
+  ('c1000000-0000-0000-0000-000000000005', 'يوسف [ديمو]', 'تيزي', 'جراح عام - بيانات تجريبية فقط، غير حقيقي', ARRAY['ar','fr','en'], 'MALE', 20, 'b1000000-0000-0000-0000-000000000004', 'قسنطينة', 'قسنطينة', ARRAY['IN_PERSON']::consultation_type[], 'DEMO', true, true, 4.6);
 
-INSERT INTO healthcare_facilities (
-  name, type, description_ar, city, wilaya,
-  latitude, longitude, phone, has_emergency,
-  is_verified, is_active, is_demo
-) VALUES
-(
-  'مستشفى الجزائر المركزي [تجريبي]', 'HOSPITAL',
-  'مستشفى عام رئيسي - بيانات تجريبية للعرض فقط',
-  'الجزائر العاصمة', 'الجزائر',
-  36.7538, 3.0588, '+213 21 100 001', TRUE, FALSE, TRUE, TRUE
-),
-(
-  'مستشفى مصطفى باشا [تجريبي]', 'HOSPITAL',
-  'مستشفى جامعي - بيانات تجريبية',
-  'الجزائر العاصمة', 'الجزائر',
-  36.7625, 3.0489, '+213 21 100 002', TRUE, FALSE, TRUE, TRUE
-),
-(
-  'مصحة الشروق [تجريبي]', 'CLINIC',
-  'مصحة خاصة متعددة التخصصات - بيانات تجريبية',
-  'الجزائر العاصمة', 'الجزائر',
-  36.7200, 3.0800, '+213 21 200 001', FALSE, FALSE, TRUE, TRUE
-),
-(
-  'مستشفى وهران الجهوي [تجريبي]', 'HOSPITAL',
-  'مستشفى جهوي رئيسي في وهران - بيانات تجريبية',
-  'وهران', 'وهران',
-  35.6911, -0.6417, '+213 41 300 001', TRUE, FALSE, TRUE, TRUE
-),
-(
-  'مستشفى سطيف [تجريبي]', 'HOSPITAL',
-  'مستشفى ولائي سطيف - بيانات تجريبية',
-  'سطيف', 'سطيف',
-  36.1905, 5.4097, '+213 36 400 001', TRUE, FALSE, TRUE, TRUE
-),
-(
-  'مستشفى قسنطينة [تجريبي]', 'HOSPITAL',
-  'مستشفى الجامعي قسنطينة - بيانات تجريبية',
-  'قسنطينة', 'قسنطينة',
-  36.3650, 6.6147, '+213 31 500 001', TRUE, FALSE, TRUE, TRUE
-);
+-- Link doctor specialties
+INSERT INTO doctor_specialties (doctor_id, specialty_id, is_primary) VALUES
+  ('c1000000-0000-0000-0000-000000000001', 'a1000000-0000-0000-0000-000000000001', true),
+  ('c1000000-0000-0000-0000-000000000002', 'a1000000-0000-0000-0000-000000000002', true),
+  ('c1000000-0000-0000-0000-000000000003', 'a1000000-0000-0000-0000-000000000003', true),
+  ('c1000000-0000-0000-0000-000000000004', 'a1000000-0000-0000-0000-000000000006', true),
+  ('c1000000-0000-0000-0000-000000000005', 'a1000000-0000-0000-0000-000000000005', true);
+
+-- Doctor availability (Sunday=0 to Saturday=6)
+INSERT INTO doctor_availability (doctor_id, day_of_week, start_time, end_time, slot_duration_minutes, is_active) VALUES
+  ('c1000000-0000-0000-0000-000000000001', 0, '08:00', '12:00', 30, true),
+  ('c1000000-0000-0000-0000-000000000001', 1, '08:00', '12:00', 30, true),
+  ('c1000000-0000-0000-0000-000000000001', 2, '14:00', '18:00', 30, true),
+  ('c1000000-0000-0000-0000-000000000002', 0, '09:00', '13:00', 30, true),
+  ('c1000000-0000-0000-0000-000000000002', 3, '14:00', '17:00', 30, true),
+  ('c1000000-0000-0000-0000-000000000003', 1, '08:00', '14:00', 45, true),
+  ('c1000000-0000-0000-0000-000000000003', 4, '08:00', '14:00', 45, true),
+  ('c1000000-0000-0000-0000-000000000004', 2, '09:00', '12:00', 30, true),
+  ('c1000000-0000-0000-0000-000000000004', 4, '09:00', '12:00', 30, true),
+  ('c1000000-0000-0000-0000-000000000005', 0, '07:00', '13:00', 60, true),
+  ('c1000000-0000-0000-0000-000000000005', 3, '07:00', '13:00', 60, true);
 
 -- ============================================================
--- DEMO PHARMACIES
+-- PHARMACIES (Demo)
 -- ============================================================
-
-INSERT INTO pharmacies (
-  name, phone, address, city, wilaya,
-  latitude, longitude, is_24h, is_verified, is_active, is_demo
-) VALUES
-('صيدلية الأمل [تجريبي]', '+213 21 000 010', 'شارع ديدوش مراد', 'الجزائر العاصمة', 'الجزائر', 36.7560, 3.0590, TRUE, FALSE, TRUE, TRUE),
-('صيدلية النور [تجريبي]', '+213 21 000 011', 'شارع بلحة', 'الجزائر العاصمة', 'الجزائر', 36.7400, 3.0450, FALSE, FALSE, TRUE, TRUE),
-('صيدلية الشفاء [تجريبي]', '+213 41 000 010', 'شارع الأمير عبد القادر', 'وهران', 'وهران', 35.6950, -0.6380, TRUE, FALSE, TRUE, TRUE),
-('صيدلية سطيف مركز [تجريبي]', '+213 36 000 010', 'شارع الاستقلال', 'سطيف', 'سطيف', 36.1920, 5.4100, FALSE, FALSE, TRUE, TRUE),
-('صيدلية قسنطينة الكبرى [تجريبي]', '+213 31 000 010', 'ساحة الشهداء', 'قسنطينة', 'قسنطينة', 36.3680, 6.6120, TRUE, FALSE, TRUE, TRUE);
+INSERT INTO pharmacies (name, phone, address, city, wilaya, latitude, longitude, is_24h, services, is_demo) VALUES
+  ('صيدلية النور [ديمو]', '+213-21-111001', 'شارع ديدوش مراد', 'الجزائر العاصمة', 'الجزائر', 36.7450, 3.0580, false, ARRAY['prescription','otc','cosmetics'], true),
+  ('صيدلية الشفاء [ديمو]', '+213-21-111002', 'حي بلكور', 'الجزائر العاصمة', 'الجزائر', 36.7321, 3.0867, true, ARRAY['prescription','otc','home_delivery'], true),
+  ('صيدلية الأمل وهران [ديمو]', '+213-41-111001', 'شارع شيش', 'وهران', 'وهران', 35.6998, -0.6365, false, ARRAY['prescription','otc'], true),
+  ('صيدلية سطيف المركزية [ديمو]', '+213-36-111001', 'ساحة الاستقلال', 'سطيف', 'سطيف', 36.1911, 5.4133, false, ARRAY['prescription','otc','vitamins'], true),
+  ('صيدلية قسنطينة 24/7 [ديمو]', '+213-31-111001', 'حي السندباد', 'قسنطينة', 'قسنطينة', 36.3640, 6.6140, true, ARRAY['prescription','otc','home_delivery'], true);
 
 -- ============================================================
--- DEMO LABORATORIES
+-- LABORATORIES (Demo)
 -- ============================================================
-
-INSERT INTO laboratories (
-  name, phone, address, city, wilaya,
-  services, requires_appointment, is_verified, is_active, is_demo
-) VALUES
-('مخبر تحاليل السلامة [تجريبي]', '+213 21 000 020', 'شارع العربي بن مهيدي', 'الجزائر العاصمة', 'الجزائر',
- ARRAY['تحاليل الدم', 'تحاليل البول', 'صورة دم كاملة', 'سكر الدم'], TRUE, FALSE, TRUE, TRUE),
-('مخبر وهران [تجريبي]', '+213 41 000 020', 'شارع كورنيش', 'وهران', 'وهران',
- ARRAY['تحاليل الدم', 'PCR', 'تحاليل هرمونية'], TRUE, FALSE, TRUE, TRUE),
-('مخبر سطيف الطبي [تجريبي]', '+213 36 000 020', 'شارع 8 مايو', 'سطيف', 'سطيف',
- ARRAY['تحاليل الدم', 'تحاليل البول', 'سكر الدم'], FALSE, FALSE, TRUE, TRUE);
+INSERT INTO laboratories (name, phone, address, city, wilaya, latitude, longitude, services, requires_appointment, is_demo) VALUES
+  ('مخبر التحاليل الطبية النور [ديمو]', '+213-21-222001', 'شارع بن مهيدي', 'الجزائر العاصمة', 'الجزائر', 36.7480, 3.0530, ARRAY['blood_tests','urine_tests','bacteriology','serology'], false, true),
+  ('مخبر الشفاء وهران [ديمو]', '+213-41-222001', 'حي المنزه', 'وهران', 'وهران', 35.6945, -0.6412, ARRAY['blood_tests','imaging','ecg'], true, true),
+  ('مخبر سطيف الطبي [ديمو]', '+213-36-222001', 'شارع عمار بن زكري', 'سطيف', 'سطيف', 36.1875, 5.4088, ARRAY['blood_tests','urine_tests','parasitology'], false, true),
+  ('مخبر قسنطينة المتخصص [ديمو]', '+213-31-222001', 'حي 5 جويلية', 'قسنطينة', 'قسنطينة', 36.3658, 6.6152, ARRAY['blood_tests','genetics','hormonology'], true, true);
 
 -- ============================================================
 -- FIRST AID CATEGORIES
 -- ============================================================
-
-INSERT INTO first_aid_categories (slug, name_ar, name_fr, name_en, icon, color, sort_order, is_emergency) VALUES
-('cpr', 'الإنعاش القلبي الرئوي', 'RCP', 'CPR', 'heart', '#DC2626', 1, TRUE),
-('choking', 'الاختناق', 'Étouffement', 'Choking', 'wind', '#EA580C', 2, TRUE),
-('bleeding', 'النزيف الشديد', 'Saignement', 'Severe Bleeding', 'droplets', '#DC2626', 3, TRUE),
-('burns', 'الحروق', 'Brûlures', 'Burns', 'flame', '#EA580C', 4, FALSE),
-('fractures', 'الكسور', 'Fractures', 'Fractures', 'bone', '#D97706', 5, FALSE),
-('fainting', 'الإغماء', 'Évanouissement', 'Fainting', 'user', '#16A34A', 6, FALSE),
-('seizures', 'النوبات التشنجية', 'Convulsions', 'Seizures', 'zap', '#EA580C', 7, TRUE),
-('poisoning', 'التسمم', 'Empoisonnement', 'Poisoning', 'skull', '#DC2626', 8, TRUE),
-('heatstroke', 'ضربة الشمس', 'Coup de chaleur', 'Heatstroke', 'sun', '#EA580C', 9, FALSE),
-('hypothermia', 'انخفاض حرارة الجسم', 'Hypothermie', 'Hypothermia', 'snowflake', '#3B82F6', 10, FALSE),
-('allergic-reaction', 'الحساسية الشديدة', 'Réaction allergique', 'Allergic Reaction', 'shield', '#DC2626', 11, TRUE),
-('cardiac', 'الطوارئ القلبية', 'Urgence cardiaque', 'Cardiac Emergency', 'heart', '#DC2626', 12, TRUE);
-
--- ============================================================
--- FIRST AID GUIDES
--- ============================================================
-
-INSERT INTO first_aid_guides (
-  category_id, slug, title_ar, title_fr, title_en,
-  warning_ar, warning_fr, warning_en,
-  when_to_call_ar, when_to_call_fr, when_to_call_en,
-  do_not_do_ar, do_not_do_fr, do_not_do_en,
-  source, review_status, reviewed_at
-) VALUES
-(
-  (SELECT id FROM first_aid_categories WHERE slug = 'cpr'),
-  'cpr-adult',
-  'الإنعاش القلبي الرئوي للبالغين',
-  'RCP pour adultes',
-  'CPR for Adults',
-  '⚠️ هذه المعلومات للتوجيه فقط وليست بديلاً عن التدريب الطبي المتخصص. اتصل بالطوارئ فوراً.',
-  '⚠️ Ces informations sont à titre indicatif uniquement. Appelez les urgences immédiatement.',
-  '⚠️ This information is for guidance only. Call emergency services immediately.',
-  'اتصل بالطوارئ فور فقدان الشخص للوعي أو توقف تنفسه. لا تتأخر.',
-  'Appelez les urgences dès que la personne perd connaissance ou ne respire plus.',
-  'Call emergency services immediately when the person loses consciousness or stops breathing.',
-  'لا تحرك الشخص إذا كان هناك شك في إصابة بالعمود الفقري. لا تضغط على الصدر بقوة مفرطة.',
-  'Ne déplacez pas la personne si une blessure à la colonne vertébrale est suspectée.',
-  'Do not move the person if spinal injury is suspected. Do not compress too hard.',
-  'Red Cross / Croix Rouge',
-  'PUBLISHED',
-  '2025-01-01'
-),
-(
-  (SELECT id FROM first_aid_categories WHERE slug = 'choking'),
-  'choking-adult',
-  'التعامل مع الاختناق لدى البالغين',
-  'Étouffement chez l''adulte',
-  'Choking in Adults',
-  '⚠️ الاختناق حالة طارئة تهدد الحياة. تصرف بسرعة واتصل بالطوارئ.',
-  '⚠️ L''étouffement est une urgence vitale. Agissez rapidement.',
-  '⚠️ Choking is a life-threatening emergency. Act quickly.',
-  'اتصل بالطوارئ فوراً إذا فشلت المناورة بعد محاولتين أو فقد الشخص الوعي.',
-  'Appelez les urgences si la manœuvre échoue ou si la personne perd connaissance.',
-  'Call emergency services if maneuver fails or person loses consciousness.',
-  'لا تضرب ظهر الشخص وهو يسعل بقوة. لا تحاول إخراج الجسم الغريب بأصابعك إلا إذا رأيته.',
-  'Ne frappez pas dans le dos si la personne tousse fort. Ne cherchez pas l''objet avec vos doigts.',
-  'Do not slap back if person is coughing forcefully. Do not do blind finger sweeps.',
-  'Red Cross / Croix Rouge',
-  'PUBLISHED',
-  '2025-01-01'
-),
-(
-  (SELECT id FROM first_aid_categories WHERE slug = 'bleeding'),
-  'severe-bleeding',
-  'إيقاف النزيف الشديد',
-  'Arrêter un saignement grave',
-  'Stopping Severe Bleeding',
-  '⚠️ النزيف الحاد خطير ويمكن أن يكون مميتاً. اتصل بالطوارئ فوراً.',
-  '⚠️ Un saignement abondant est dangereux. Appelez les urgences.',
-  '⚠️ Severe bleeding is dangerous and potentially fatal. Call emergency services immediately.',
-  'اتصل بالطوارئ فوراً في حالة النزيف الغزير أو الجرح العميق.',
-  'Appelez les urgences immédiatement en cas de saignement abondant ou de plaie profonde.',
-  'Call emergency services immediately for heavy bleeding or deep wounds.',
-  'لا تنزع الضمادة إذا نفذت الدم — أضف طبقة أخرى فوقها. لا تضع العاصبة على مفاصل.',
-  'Ne retirez pas le pansement s''il est imbibé — ajoutez une couche par-dessus.',
-  'Do not remove soaked dressing — add a layer on top. Do not apply tourniquet on joints.',
-  'Red Cross / Croix Rouge',
-  'PUBLISHED',
-  '2025-01-01'
-);
+INSERT INTO first_aid_categories (id, name_ar, name_fr, name_en, icon, color, sort_order) VALUES
+  ('d1000000-0000-0000-0000-000000000001', 'الإنعاش القلبي الرئوي (CPR)', 'Réanimation cardio-pulmonaire (RCP)', 'CPR', 'heart', '#DC2626', 1),
+  ('d1000000-0000-0000-0000-000000000002', 'الاختناق', 'Étouffement', 'Choking', 'wind', '#EA580C', 2),
+  ('d1000000-0000-0000-0000-000000000003', 'النزيف', 'Saignement', 'Bleeding', 'droplets', '#DC2626', 3),
+  ('d1000000-0000-0000-0000-000000000004', 'الحروق', 'Brûlures', 'Burns', 'flame', '#D97706', 4),
+  ('d1000000-0000-0000-0000-000000000005', 'الكسور', 'Fractures', 'Fractures', 'bone', '#2563EB', 5),
+  ('d1000000-0000-0000-0000-000000000006', 'الإغماء', 'Évanouissement', 'Fainting', 'user-x', '#7C3AED', 6),
+  ('d1000000-0000-0000-0000-000000000007', 'النوبات التشنجية', 'Convulsions', 'Seizures', 'zap', '#DC2626', 7),
+  ('d1000000-0000-0000-0000-000000000008', 'التسمم', 'Empoisonnement', 'Poisoning', 'skull', '#991B1B', 8),
+  ('d1000000-0000-0000-0000-000000000009', 'ضربة الشمس', 'Coup de chaleur', 'Heatstroke', 'sun', '#B45309', 9),
+  ('d1000000-0000-0000-0000-000000000010', 'الحساسية الشديدة', 'Réaction allergique', 'Allergic Reaction', 'shield-alert', '#DC2626', 10),
+  ('d1000000-0000-0000-0000-000000000011', 'نوبة قلبية', 'Crise cardiaque', 'Heart Attack', 'heart-crack', '#991B1B', 11),
+  ('d1000000-0000-0000-0000-000000000012', 'انخفاض درجة الحرارة', 'Hypothermie', 'Hypothermia', 'thermometer-snowflake', '#1D4ED8', 12);
 
 -- ============================================================
--- FIRST AID STEPS
+-- FIRST AID GUIDES (CPR - full example)
 -- ============================================================
+INSERT INTO first_aid_guides (id, category_id, title_ar, title_fr, title_en, warning_ar, warning_fr, warning_en, call_emergency_when_ar, call_emergency_when_fr, call_emergency_when_en, do_not_do_ar, do_not_do_fr, do_not_do_en, source, review_status, version, is_published) VALUES
+  ('e1000000-0000-0000-0000-000000000001',
+   'd1000000-0000-0000-0000-000000000001',
+   'كيفية إجراء الإنعاش القلبي الرئوي للبالغين',
+   'Comment effectuer la RCP sur un adulte',
+   'How to Perform CPR on an Adult',
+   '⚠️ هذه المعلومات للتوجيه العام فقط. يجب الحصول على تدريب معتمد على الإسعاف الأولي.',
+   '⚠️ Ces informations sont à titre indicatif uniquement. Une formation certifiée en premiers secours est recommandée.',
+   '⚠️ This information is for general guidance only. Certified first aid training is strongly recommended.',
+   'اتصل بالطوارئ فوراً إذا كان الشخص فاقد الوعي ولا يتنفس، أو إذا لم تستجب لمحاولاتك',
+   'Appelez immédiatement les secours si la personne est inconsciente et ne respire pas',
+   'Call emergency services immediately if the person is unconscious and not breathing',
+   'لا تترك المريض وحيداً. لا تضغط على البطن. لا تكن عنيفاً في الضغط',
+   'Ne laissez pas le patient seul. Ne comprimez pas l''abdomen.',
+   'Do not leave the patient alone. Do not compress the abdomen.',
+   'Croix-Rouge Algérienne / الهلال الأحمر الجزائري',
+   'PUBLISHED', 1, true),
 
--- CPR Steps
-INSERT INTO first_aid_steps (guide_id, step_number, title_ar, title_fr, title_en, description_ar, description_fr, description_en, is_critical)
-SELECT
-  g.id,
-  s.step_number,
-  s.title_ar, s.title_fr, s.title_en,
-  s.desc_ar, s.desc_fr, s.desc_en,
-  s.is_critical
-FROM first_aid_guides g
-CROSS JOIN (
-  VALUES
-  (1, 'تحقق من السلامة', 'Vérifiez la sécurité', 'Check Safety',
-   'تأكد من سلامة المنطقة المحيطة لك وللمصاب قبل الاقتراب.', 'Assurez-vous que la zone est sûre.', 'Ensure the area is safe for you and the victim.', false),
-  (2, 'تحقق من الاستجابة', 'Vérifiez la réponse', 'Check Response',
-   'انقر على كتفي الشخص وقل بصوت عالٍ: هل أنت بخير؟', 'Tapotez les épaules et dites fort: Ça va?', 'Tap shoulders firmly and ask loudly: Are you OK?', true),
-  (3, 'اتصل بالطوارئ', 'Appelez les urgences', 'Call Emergency',
-   'اتصل أو اطلب من شخص آخر الاتصال بالطوارئ فوراً. لا تتركه وحده.', 'Appelez ou faites appeler les secours immédiatement.', 'Call or ask someone to call emergency services immediately.', true),
-  (4, 'ابدأ ضغط الصدر', 'Commencez les compressions', 'Begin Chest Compressions',
-   'ضع كعب يدك على مركز الصدر. ضع يدك الأخرى فوقها. اضغط بعمق 5-6 سم بمعدل 100-120 ضغطة/دقيقة.', 'Placez le talon de votre main au centre de la poitrine. Comprimez de 5-6 cm, 100-120 fois/min.', 'Place heel of hand on center of chest. Push down 5-6cm at 100-120 compressions/min.', true),
-  (5, 'أعطِ التنفس الاصطناعي (إذا كنت مدرباً)', 'Ventilations de secours (si formé)', 'Rescue Breaths (if trained)',
-   'بعد 30 ضغطة، أعطِ نفسين تنفسيين إذا كنت مدرباً. إذا لم تكن متدرباً، استمر في الضغط فقط.', 'Après 30 compressions, donnez 2 insufflations si vous êtes formé.', 'After 30 compressions, give 2 rescue breaths if trained. If not trained, continue compressions only.', false)
-) AS s(step_number, title_ar, title_fr, title_en, desc_ar, desc_fr, desc_en, is_critical)
-WHERE g.slug = 'cpr-adult';
+  ('e1000000-0000-0000-0000-000000000002',
+   'd1000000-0000-0000-0000-000000000003',
+   'كيفية إيقاف النزيف الشديد',
+   'Comment arrêter un saignement abondant',
+   'How to Stop Severe Bleeding',
+   '⚠️ النزيف الشديد حالة طارئة. اتصل بالإسعاف فوراً.',
+   '⚠️ Un saignement abondant est une urgence médicale.',
+   '⚠️ Severe bleeding is a medical emergency.',
+   'اتصل بالطوارئ فوراً في حالة نزيف لا يتوقف بعد 10 دقائق أو نزيف ناتج عن جرح عميق',
+   'Appelez les secours si le saignement ne s''arrête pas après 10 minutes',
+   'Call emergency services if bleeding does not stop after 10 minutes',
+   'لا تزيل أي جسم غريب مغروز في الجرح. لا تضغط مباشرة على الكسور المفتوحة',
+   'Ne retirez pas d''objet incrusté dans la plaie.',
+   'Do not remove an embedded object from a wound.',
+   'الهلال الأحمر الجزائري',
+   'PUBLISHED', 1, true);
 
--- Choking Steps
-INSERT INTO first_aid_steps (guide_id, step_number, title_ar, title_fr, title_en, description_ar, description_fr, description_en, is_critical)
-SELECT
-  g.id,
-  s.step_number,
-  s.title_ar, s.title_fr, s.title_en,
-  s.desc_ar, s.desc_fr, s.desc_en,
-  s.is_critical
-FROM first_aid_guides g
-CROSS JOIN (
-  VALUES
-  (1, 'شجع على السعال', 'Encouragez la toux', 'Encourage Coughing',
-   'إذا كان الشخص يسعل بقوة، شجعه على الاستمرار. لا تتدخل.', 'Si la personne tousse fort, encouragez-la à continuer.', 'If the person is coughing forcefully, encourage them to continue.', false),
-  (2, 'اتصل بالطوارئ إذا تعذر السعال', 'Appelez si la toux est inefficace', 'Call if cough is ineffective',
-   'إذا لم يستطع الشخص السعال أو التنفس أو الكلام، اتصل بالطوارئ فوراً.', 'Si la personne ne peut pas tousser/respirer/parler, appelez les secours.', 'If person cannot cough/breathe/speak, call emergency services immediately.', true),
-  (3, 'أعطِ 5 ضربات على الظهر', '5 tapes dans le dos', '5 Back Blows',
-   'انحنِ الشخص للأمام. أعطِ 5 ضربات قوية بين لوحي الكتف بكعب يدك.', 'Penchez la personne en avant. Donnez 5 coups fermes entre les omoplates.', 'Lean person forward. Give 5 firm back blows between shoulder blades.', true),
-  (4, 'مناورة هيمليك', 'Manœuvre de Heimlich', 'Heimlich Maneuver',
-   'قف خلف الشخص. ضع يديك حول خصره. اضغط للداخل وللأعلى بقوة 5 مرات.', 'Placez-vous derrière. Entourez la taille. Poussez vers l''intérieur et vers le haut 5 fois.', 'Stand behind. Place hands around waist. Thrust inward and upward 5 times.', true),
-  (5, 'كرر حتى تحرر المجرى الهوائي', 'Répétez jusqu''à dégagement', 'Repeat until airway is clear',
-   'بادل بين 5 ضربات ظهر و5 ضغطات بطنية حتى يخرج الجسم الغريب أو يفقد الشخص الوعي.', 'Alternez 5 tapes/5 compressions jusqu''à dégagement ou perte de conscience.', 'Alternate 5 back blows/5 abdominal thrusts until object is expelled or person loses consciousness.', true)
-) AS s(step_number, title_ar, title_fr, title_en, desc_ar, desc_fr, desc_en, is_critical)
-WHERE g.slug = 'choking-adult';
+-- CPR steps
+INSERT INTO first_aid_steps (guide_id, step_number, instruction_ar, instruction_fr, instruction_en, is_critical) VALUES
+  ('e1000000-0000-0000-0000-000000000001', 1, 'تحقق من سلامة المكان والمريض - اضغط على كتفيه بلطف وناده بصوت عالٍ', 'Vérifiez la sécurité et répondez au patient en le secouant doucement et en l''appelant', 'Check safety and responsiveness - tap shoulders firmly and call out loudly', true),
+  ('e1000000-0000-0000-0000-000000000001', 2, 'اطلب من شخص آخر الاتصال بالطوارئ (15 أو 1021) وإحضار جهاز AED إن وجد', 'Demandez à quelqu''un d''appeler le 15 et d''apporter un DAE si disponible', 'Ask someone to call emergency services and get an AED if available', true),
+  ('e1000000-0000-0000-0000-000000000001', 3, 'افتح مجرى الهواء: أمل الرأس للخلف برفع الذقن', 'Ouvrez les voies respiratoires: inclinez la tête et soulevez le menton', 'Open airway: tilt head back and lift chin', true),
+  ('e1000000-0000-0000-0000-000000000001', 4, 'تحقق من التنفس (لا تتجاوز 10 ثواني): هل ترى حركة الصدر؟ هل تسمع أنفاساً؟', 'Vérifiez la respiration (max 10 secondes): mouvement de la poitrine, sons', 'Check for breathing (no more than 10 seconds): chest movement, sounds', true),
+  ('e1000000-0000-0000-0000-000000000001', 5, 'ضع يدك على مركز الصدر، ضع يدك الأخرى فوقها. اضغط بقوة وبسرعة 100-120 ضغطة في الدقيقة بعمق 5-6 سم', 'Placez vos mains au centre de la poitrine. Compressions de 5-6 cm à 100-120/min', 'Place hands on center of chest. Compress 5-6 cm at 100-120 per minute', true),
+  ('e1000000-0000-0000-0000-000000000001', 6, 'أعطِ نفسين إنقاذ بعد كل 30 ضغطة إذا كنت مدرباً. إذا لم تكن مدرباً، استمر في الضغطات فقط', 'Donnez 2 insufflations après 30 compressions si vous êtes formé, sinon continuez uniquement les compressions', 'Give 2 rescue breaths after every 30 compressions if trained, otherwise continue compressions only', false),
+  ('e1000000-0000-0000-0000-000000000001', 7, 'استمر حتى وصول الإسعاف، أو يبدأ المريض بالتنفس، أو تصبح منهكاً تماماً', 'Continuez jusqu''à l''arrivée des secours, jusqu''à ce que la victime reprenne conscience, ou jusqu''à épuisement total', 'Continue until emergency services arrive, victim recovers, or you are completely exhausted', true);
 
--- Bleeding Steps
-INSERT INTO first_aid_steps (guide_id, step_number, title_ar, title_fr, title_en, description_ar, description_fr, description_en, is_critical)
-SELECT
-  g.id,
-  s.step_number,
-  s.title_ar, s.title_fr, s.title_en,
-  s.desc_ar, s.desc_fr, s.desc_en,
-  s.is_critical
-FROM first_aid_guides g
-CROSS JOIN (
-  VALUES
-  (1, 'اتصل بالطوارئ', 'Appelez les urgences', 'Call Emergency',
-   'في حالة النزيف الغزير اتصل فوراً بالطوارئ ولا تترك الشخص.', 'En cas de saignement abondant, appelez immédiatement les urgences.', 'In case of heavy bleeding, call emergency services immediately.', true),
-  (2, 'ارتدِ القفازات إذا أمكن', 'Portez des gants si possible', 'Wear gloves if possible',
-   'استخدم قفازات طبية إذا توفرت لحماية نفسك وللمصاب.', 'Utilisez des gants médicaux si disponibles pour vous protéger.', 'Use medical gloves if available to protect yourself.', false),
-  (3, 'اضغط على الجرح', 'Appuyez sur la plaie', 'Apply pressure',
-   'اضغط بضمادة نظيفة أو قطعة قماش نظيفة على الجرح بشكل مستمر ومتواصل.', 'Appuyez fermement avec un pansement propre sur la plaie.', 'Press firmly with a clean bandage or cloth on the wound continuously.', true),
-  (4, 'حافظ على الضغط', 'Maintenez la pression', 'Maintain pressure',
-   'حافظ على الضغط المستمر لمدة لا تقل عن 10 دقائق. لا ترفع الضمادة للتحقق.', 'Maintenez une pression constante pendant au moins 10 minutes.', 'Maintain constant pressure for at least 10 minutes. Do not lift to check.', true),
-  (5, 'ارفع الطرف المصاب', 'Élevez le membre blessé', 'Elevate injured limb',
-   'إذا أمكن، ارفع الطرف المصاب فوق مستوى القلب لتقليل النزيف.', 'Si possible, élevez le membre blessé au-dessus du niveau du cœur.', 'If possible, raise injured limb above heart level to reduce bleeding.', false)
-) AS s(step_number, title_ar, title_fr, title_en, desc_ar, desc_fr, desc_en, is_critical)
-WHERE g.slug = 'severe-bleeding';
+-- Bleeding steps
+INSERT INTO first_aid_steps (guide_id, step_number, instruction_ar, instruction_fr, instruction_en, is_critical) VALUES
+  ('e1000000-0000-0000-0000-000000000002', 1, 'ارتدِ قفازات طبية إن أمكن لحماية نفسك', 'Portez des gants médicaux si possible', 'Wear medical gloves if available to protect yourself', false),
+  ('e1000000-0000-0000-0000-000000000002', 2, 'اضغط بقوة على الجرح باستخدام قطعة قماش نظيفة أو ضمادة', 'Appuyez fermement sur la plaie avec un chiffon propre ou un pansement', 'Apply firm pressure to the wound using a clean cloth or bandage', true),
+  ('e1000000-0000-0000-0000-000000000002', 3, 'إذا كانت الضمادة مشبعة، أضف طبقة أخرى فوقها دون رفع الأولى', 'Si le pansement est saturé, ajoutez une couche sans retirer la première', 'If dressing becomes soaked, add another layer without removing the first', true),
+  ('e1000000-0000-0000-0000-000000000002', 4, 'ارفع الجزء المصاب فوق مستوى القلب إن أمكن', 'Élevez la partie blessée au-dessus du niveau du cœur si possible', 'Elevate the injured part above heart level if possible', false),
+  ('e1000000-0000-0000-0000-000000000002', 5, 'إذا لم يتوقف النزيف، ضع رباطاً ضاغطاً فوق الجرح واطلب المساعدة الطبية فوراً', 'Si le saignement ne s''arrête pas, appliquez un garrot et demandez une aide médicale immédiate', 'If bleeding does not stop, apply tourniquet and seek immediate medical help', true);
