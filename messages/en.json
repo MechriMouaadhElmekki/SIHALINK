@@ -1,10 +1,5 @@
 {
-  "app": {
-    "name": "SIHALINK",
-    "tagline": "Digital Emergency & Healthcare Coordination Platform",
-    "demo_badge": "Demo Mode",
-    "demo_notice": "You are using demo data. No real emergency services have been contacted."
-  },
+  "app": { "name": "SIHALINK", "tagline": "Emergency & Healthcare Coordination Platform" },
   "nav": {
     "home": "Home",
     "emergency": "Emergency",
@@ -14,53 +9,87 @@
     "facilities": "Facilities",
     "pharmacies": "Pharmacies",
     "laboratories": "Laboratories",
-    "first_aid": "First Aid",
-    "notifications": "Notifications",
-    "account": "Account",
+    "firstAid": "First Aid",
+    "account": "My Account",
     "admin": "Admin Panel",
     "operator": "Operations",
-    "logout": "Log out"
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register"
   },
   "auth": {
-    "login": "Log in",
-    "register": "Create account",
-    "logout": "Log out",
-    "email": "Email address",
+    "loginTitle": "Sign In",
+    "registerTitle": "Create Account",
+    "email": "Email",
     "password": "Password",
-    "confirm_password": "Confirm password",
-    "first_name": "First name",
-    "last_name": "Last name",
-    "phone": "Phone number",
-    "forgot_password": "Forgot password?",
-    "reset_password": "Reset password",
-    "verify_email": "Verify your email",
-    "already_have_account": "Already have an account?",
-    "no_account": "Don't have an account?",
-    "create_account": "Create a new account",
-    "login_title": "Welcome back",
-    "register_title": "Create your account",
-    "login_subtitle": "Sign in to access emergency and healthcare services",
-    "register_subtitle": "Join SIHALINK for healthcare and emergency coordination",
-    "send_reset_link": "Send reset link",
-    "back_to_login": "Back to login",
-    "preferred_language": "Preferred language"
+    "confirmPassword": "Confirm Password",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phone": "Phone Number",
+    "forgotPassword": "Forgot your password?",
+    "resetPassword": "Reset Password",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "loginBtn": "Sign In",
+    "registerBtn": "Register",
+    "sendResetLink": "Send Reset Link",
+    "verifyEmail": "Verify Your Email",
+    "verifyEmailMsg": "A verification link has been sent to your email address."
+  },
+  "home": {
+    "greeting": "Welcome",
+    "emergencyBtn": "Report Emergency",
+    "emergencyBtnSub": "Tap to immediately report an emergency",
+    "activeReport": "You have an active emergency report",
+    "quickServices": "Quick Services",
+    "gpsStatus": "GPS Status",
+    "gpsActive": "Active",
+    "gpsInactive": "Inactive"
   },
   "emergency": {
-    "title": "Report an Emergency",
-    "cta": "EMERGENCY",
-    "cta_subtitle": "Press to report an emergency",
+    "title": "Emergency Report",
+    "step1Title": "Emergency Type",
+    "step2Title": "Assessment",
+    "step3Title": "Location",
+    "step4Title": "Attachments",
+    "step5Title": "Review & Confirm",
     "types": {
-      "medical": "Medical emergency",
+      "medical": "Medical Emergency",
       "accident": "Accident",
       "fire": "Fire",
-      "maternity": "Maternity emergency",
-      "child_emergency": "Child emergency",
-      "elderly_emergency": "Elderly emergency",
-      "unconscious": "Unconscious person",
-      "breathing_difficulty": "Breathing difficulty",
-      "chest_pain": "Chest pain",
-      "severe_bleeding": "Severe bleeding",
+      "pregnancy": "Pregnancy / Maternity",
+      "child_emergency": "Child Emergency",
+      "elderly_emergency": "Elderly Emergency",
+      "unconscious": "Unconscious Person",
+      "breathing_difficulty": "Breathing Difficulty",
+      "chest_pain": "Chest Pain",
+      "severe_bleeding": "Severe Bleeding",
       "other": "Other"
+    },
+    "triage": {
+      "disclaimer": "⚠️ This information does not replace professional medical assessment",
+      "isConscious": "Is the person conscious?",
+      "isBreathing": "Are they breathing normally?",
+      "hasSevereBleed": "Is there severe bleeding?",
+      "isTrapped": "Is the person trapped?",
+      "isImmediateDanger": "Is there immediate danger?",
+      "affectedCount": "How many people are affected?",
+      "isChild": "Is the patient a child (under 15)?",
+      "isPregnant": "Is the patient pregnant?",
+      "yes": "Yes",
+      "no": "No",
+      "unknown": "Unknown"
+    },
+    "location": {
+      "title": "Your Location",
+      "requesting": "Requesting location...",
+      "confirmed": "Location confirmed",
+      "useGPS": "Use Current GPS",
+      "enterManually": "Enter Manually",
+      "accuracy": "Accuracy",
+      "lat": "Latitude",
+      "lng": "Longitude",
+      "neverFaked": "Your GPS location is never fabricated"
     },
     "priority": {
       "CRITICAL": "Critical",
@@ -68,6 +97,18 @@
       "MEDIUM": "Medium",
       "LOW": "Low"
     },
+    "submission": {
+      "confirm": "Confirm Submission",
+      "confirmMsg": "Do you confirm sending this report?",
+      "submitting": "Submitting...",
+      "success": "Successfully submitted",
+      "reportNumber": "Report Number",
+      "disclaimer": "⚠️ Demo mode: this report has NOT been sent to any real emergency service"
+    }
+  },
+  "reports": {
+    "title": "My Reports",
+    "empty": "No reports yet",
     "status": {
       "DRAFT": "Draft",
       "SUBMITTED": "Submitted",
@@ -81,7 +122,9 @@
       "REJECTED": "Rejected",
       "FALSE_REPORT_REVIEW": "False Report Review",
       "CLOSED": "Closed"
-    }
+    },
+    "cancelBtn": "Cancel Report",
+    "cancelReason": "Reason for cancellation"
   },
   "common": {
     "loading": "Loading...",
@@ -94,16 +137,24 @@
     "edit": "Edit",
     "back": "Back",
     "next": "Next",
-    "previous": "Previous",
     "submit": "Submit",
     "search": "Search",
     "filter": "Filter",
     "all": "All",
     "yes": "Yes",
     "no": "No",
-    "no_results": "No results found",
-    "required_field": "Required field",
-    "optional": "Optional",
-    "or": "or"
+    "demoData": "⚠️ Demo Data",
+    "noResults": "No results found",
+    "connectionError": "Connection error. Please try again."
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "invalidPhone": "Invalid phone number",
+    "unauthorized": "You are not authorized to access this",
+    "serverError": "Server error. Please try again later.",
+    "notFound": "Item not found"
   }
 }

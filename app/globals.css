@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
     --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
@@ -25,7 +25,7 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 217 91% 60%;
-    --radius: 0.75rem;
+    --radius: 0.5rem;
   }
 
   .dark {
@@ -36,7 +36,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
     --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
@@ -52,15 +52,13 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Arabic RTL typography */
+  /* RTL for Arabic */
   [dir="rtl"] {
     font-family: 'Cairo', 'Noto Sans Arabic', sans-serif;
   }
@@ -68,36 +66,35 @@
   [dir="ltr"] {
     font-family: 'Inter', sans-serif;
   }
+
+  /* Arabic typography enhancements */
+  [lang="ar"] {
+    line-height: 1.8;
+    letter-spacing: 0;
+  }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  .text-balance { text-wrap: balance; }
 
   /* Emergency pulse animation */
   .emergency-pulse {
-    animation: emergencyPulse 1.5s ease-in-out infinite;
+    animation: pulse-emergency 1.5s ease-in-out infinite;
   }
 
-  @keyframes emergencyPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
-    50% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
+  /* Priority colors */
+  .priority-critical { @apply bg-red-600 text-white; }
+  .priority-high { @apply bg-orange-600 text-white; }
+  .priority-medium { @apply bg-yellow-600 text-white; }
+  .priority-low { @apply bg-green-600 text-white; }
+
+  /* Demo banner */
+  .demo-banner {
+    @apply bg-amber-100 border border-amber-400 text-amber-800 text-xs px-2 py-1 rounded;
   }
 
   /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
-    .emergency-pulse {
-      animation: none;
-    }
-  }
-
-  /* RTL-aware spacing utilities */
-  .rtl\:flip {
-    transform: scaleX(-1);
-  }
-
-  [dir="rtl"] .rtl\:flip {
-    transform: scaleX(1);
+    .emergency-pulse { animation: none; }
   }
 }

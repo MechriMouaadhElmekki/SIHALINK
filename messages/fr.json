@@ -1,10 +1,5 @@
 {
-  "app": {
-    "name": "SIHALINK",
-    "tagline": "Plateforme d'urgence et de coordination des soins de santé",
-    "demo_badge": "Mode démo",
-    "demo_notice": "Vous utilisez des données de démonstration. Aucun service d'urgence réel n'a été contacté."
-  },
+  "app": { "name": "SIHALINK", "tagline": "Plateforme d'urgence et de soins de santé" },
   "nav": {
     "home": "Accueil",
     "emergency": "Urgence",
@@ -14,53 +9,87 @@
     "facilities": "Établissements",
     "pharmacies": "Pharmacies",
     "laboratories": "Laboratoires",
-    "first_aid": "Premiers secours",
-    "notifications": "Notifications",
+    "firstAid": "Premiers secours",
     "account": "Mon compte",
     "admin": "Administration",
     "operator": "Opérations",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "register": "S'inscrire"
   },
   "auth": {
-    "login": "Connexion",
-    "register": "S'inscrire",
-    "logout": "Déconnexion",
-    "email": "Adresse e-mail",
+    "loginTitle": "Connexion",
+    "registerTitle": "Créer un compte",
+    "email": "Email",
     "password": "Mot de passe",
-    "confirm_password": "Confirmer le mot de passe",
-    "first_name": "Prénom",
-    "last_name": "Nom de famille",
+    "confirmPassword": "Confirmer le mot de passe",
+    "firstName": "Prénom",
+    "lastName": "Nom",
     "phone": "Téléphone",
-    "forgot_password": "Mot de passe oublié ?",
-    "reset_password": "Réinitialiser le mot de passe",
-    "verify_email": "Vérifiez votre e-mail",
-    "already_have_account": "Vous avez déjà un compte ?",
-    "no_account": "Pas encore de compte ?",
-    "create_account": "Créer un compte",
-    "login_title": "Bon retour",
-    "register_title": "Créer votre compte",
-    "login_subtitle": "Connectez-vous pour accéder aux services d'urgence et de santé",
-    "register_subtitle": "Rejoignez SIHALINK pour les soins de santé et les urgences",
-    "send_reset_link": "Envoyer le lien de réinitialisation",
-    "back_to_login": "Retour à la connexion",
-    "preferred_language": "Langue préférée"
+    "forgotPassword": "Mot de passe oublié ?",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "noAccount": "Pas de compte ?",
+    "hasAccount": "Déjà un compte ?",
+    "loginBtn": "Se connecter",
+    "registerBtn": "S'inscrire",
+    "sendResetLink": "Envoyer le lien",
+    "verifyEmail": "Vérifiez votre email",
+    "verifyEmailMsg": "Un lien de vérification a été envoyé à votre adresse email."
+  },
+  "home": {
+    "greeting": "Bonjour",
+    "emergencyBtn": "Signaler une urgence",
+    "emergencyBtnSub": "Appuyez pour signaler immédiatement une urgence",
+    "activeReport": "Vous avez un signalement d'urgence actif",
+    "quickServices": "Services rapides",
+    "gpsStatus": "Statut GPS",
+    "gpsActive": "Actif",
+    "gpsInactive": "Inactif"
   },
   "emergency": {
-    "title": "Signaler une urgence",
-    "cta": "URGENCE",
-    "cta_subtitle": "Appuyez pour signaler une urgence",
+    "title": "Signalement d'urgence",
+    "step1Title": "Type d'urgence",
+    "step2Title": "Évaluation",
+    "step3Title": "Localisation",
+    "step4Title": "Pièces jointes",
+    "step5Title": "Résumé et confirmation",
     "types": {
       "medical": "Urgence médicale",
       "accident": "Accident",
       "fire": "Incendie",
-      "maternity": "Urgence maternité",
+      "pregnancy": "Grossesse / Accouchement",
       "child_emergency": "Urgence enfant",
-      "elderly_emergency": "Urgence personnes âgées",
+      "elderly_emergency": "Urgence personne âgée",
       "unconscious": "Personne inconsciente",
       "breathing_difficulty": "Difficulté respiratoire",
       "chest_pain": "Douleur thoracique",
       "severe_bleeding": "Saignement grave",
       "other": "Autre"
+    },
+    "triage": {
+      "disclaimer": "⚠️ Ces informations ne remplacent pas une évaluation médicale professionnelle",
+      "isConscious": "La personne est-elle consciente ?",
+      "isBreathing": "Respire-t-elle normalement ?",
+      "hasSevereBleed": "Y a-t-il un saignement grave ?",
+      "isTrapped": "La personne est-elle coincée ?",
+      "isImmediateDanger": "Y a-t-il un danger immédiat ?",
+      "affectedCount": "Combien de personnes sont touchées ?",
+      "isChild": "La personne est-elle un enfant (moins de 15 ans) ?",
+      "isPregnant": "La patiente est-elle enceinte ?",
+      "yes": "Oui",
+      "no": "Non",
+      "unknown": "Inconnu"
+    },
+    "location": {
+      "title": "Votre localisation",
+      "requesting": "Demande de localisation...",
+      "confirmed": "Localisation confirmée",
+      "useGPS": "Utiliser le GPS actuel",
+      "enterManually": "Saisir manuellement",
+      "accuracy": "Précision",
+      "lat": "Latitude",
+      "lng": "Longitude",
+      "neverFaked": "Votre position GPS n'est jamais falsifiée"
     },
     "priority": {
       "CRITICAL": "Critique",
@@ -68,20 +97,34 @@
       "MEDIUM": "Moyen",
       "LOW": "Faible"
     },
+    "submission": {
+      "confirm": "Confirmer l'envoi",
+      "confirmMsg": "Confirmez-vous l'envoi de ce signalement ?",
+      "submitting": "Envoi en cours...",
+      "success": "Envoyé avec succès",
+      "reportNumber": "Numéro du signalement",
+      "disclaimer": "⚠️ Mode démonstration : ce signalement N'A PAS été envoyé à un service d'urgence réel"
+    }
+  },
+  "reports": {
+    "title": "Mes signalements",
+    "empty": "Aucun signalement pour l'instant",
     "status": {
       "DRAFT": "Brouillon",
-      "SUBMITTED": "Soumis",
+      "SUBMITTED": "Envoyé",
       "RECEIVED": "Reçu",
       "UNDER_REVIEW": "En cours d'examen",
       "ASSIGNED": "Assigné",
-      "ACKNOWLEDGED": "Confirmé",
+      "ACKNOWLEDGED": "Pris en charge",
       "IN_PROGRESS": "En cours",
       "RESOLVED": "Résolu",
       "CANCELLED": "Annulé",
       "REJECTED": "Rejeté",
-      "FALSE_REPORT_REVIEW": "Examen fausse alerte",
+      "FALSE_REPORT_REVIEW": "Examen faux signalement",
       "CLOSED": "Fermé"
-    }
+    },
+    "cancelBtn": "Annuler le signalement",
+    "cancelReason": "Raison de l'annulation"
   },
   "common": {
     "loading": "Chargement...",
@@ -94,16 +137,24 @@
     "edit": "Modifier",
     "back": "Retour",
     "next": "Suivant",
-    "previous": "Précédent",
     "submit": "Envoyer",
     "search": "Rechercher",
     "filter": "Filtrer",
-    "all": "Tout",
+    "all": "Tous",
     "yes": "Oui",
     "no": "Non",
-    "no_results": "Aucun résultat",
-    "required_field": "Champ requis",
-    "optional": "Facultatif",
-    "or": "ou"
+    "demoData": "⚠️ Données de démonstration",
+    "noResults": "Aucun résultat",
+    "connectionError": "Erreur de connexion. Veuillez réessayer."
+  },
+  "errors": {
+    "required": "Ce champ est requis",
+    "invalidEmail": "Email invalide",
+    "passwordMismatch": "Les mots de passe ne correspondent pas",
+    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+    "invalidPhone": "Numéro de téléphone invalide",
+    "unauthorized": "Accès non autorisé",
+    "serverError": "Erreur serveur. Veuillez réessayer plus tard.",
+    "notFound": "Élément introuvable"
   }
 }
