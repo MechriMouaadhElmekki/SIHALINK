@@ -1,26 +1,46 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import type { Database } from '@/types/database';
 
-export function createClient() {
+export function createServerSupabaseClient() {
   const cookieStore = cookies();
 
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return cookieStore.getAll();
+        get(name: string) {
+          return cookieStore.get(name)?.value;
         },
-        setAll(cookiesToSet) {
+        set(name: string, value: string, options: Record<string, unknown>) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // Server component - ignore
-          }
+            cookieStore.set({ name, value, ...options });
+          } catch {}
         },
+        remove(name: string, options: Record<string, unknown>) {
+          try {
+            cookieStore.set({ name, value: '', ...options });
+          } catch {}
+        },
+      },
+    }
+  );
+}
+
+export function createServiceClient() {
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        get() { return undefined; },
+        set() {},
+        remove() {},
+      },
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
       },
     }
   );

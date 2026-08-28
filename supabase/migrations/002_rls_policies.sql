@@ -1,326 +1,342 @@
 -- ============================================================
--- SIHALINK Row Level Security Policies
+-- SIHALINK - Row Level Security Policies
+-- Migration: 002_rls_policies
 -- ============================================================
 
--- Helper function: get current user's role(s)
-CREATE OR REPLACE FUNCTION public.get_user_roles(user_uuid UUID)
-RETURNS TEXT[] AS $$
-  SELECT ARRAY_AGG(role_name)
-  FROM public.user_roles
-  WHERE user_id = user_uuid;
-$$ LANGUAGE sql STABLE SECURITY DEFINER;
+-- Enable RLS on all tables
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notification_preferences ENABLE ROW LEVEL SECURITY;
+ALTER TABLE trusted_contacts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE emergency_reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE emergency_triage_answers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE emergency_locations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE emergency_media ENABLE ROW LEVEL SECURITY;
+ALTER TABLE report_status_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE emergency_report_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE false_report_cases ENABLE ROW LEVEL SECURITY;
+ALTER TABLE suspensions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE specialties ENABLE ROW LEVEL SECURITY;
+ALTER TABLE healthcare_facilities ENABLE ROW LEVEL SECURITY;
+ALTER TABLE facility_services ENABLE ROW LEVEL SECURITY;
+ALTER TABLE pharmacies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE laboratories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE doctors ENABLE ROW LEVEL SECURITY;
+ALTER TABLE doctor_specialties ENABLE ROW LEVEL SECURITY;
+ALTER TABLE doctor_availability ENABLE ROW LEVEL SECURITY;
+ALTER TABLE appointments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE appointment_status_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE first_aid_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE first_aid_guides ENABLE ROW LEVEL SECURITY;
+ALTER TABLE first_aid_steps ENABLE ROW LEVEL SECURITY;
+ALTER TABLE saved_first_aid_guides ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_notes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE system_settings ENABLE ROW LEVEL SECURITY;
 
--- Helper: is user admin or super admin
-CREATE OR REPLACE FUNCTION public.is_admin(user_uuid UUID)
+-- Helper function to get current user role
+CREATE OR REPLACE FUNCTION get_user_role()
+RETURNS user_role AS $$
+  SELECT role FROM profiles WHERE id = auth.uid()
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
+-- Helper function to check if user is admin or higher
+CREATE OR REPLACE FUNCTION is_admin()
 RETURNS BOOLEAN AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.user_roles
-    WHERE user_id = user_uuid
-    AND role_name IN ('ADMIN', 'SUPER_ADMIN')
-  );
-$$ LANGUAGE sql STABLE SECURITY DEFINER;
+  SELECT role IN ('ADMIN', 'SUPER_ADMIN') FROM profiles WHERE id = auth.uid()
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
 
--- Helper: is user emergency operator
-CREATE OR REPLACE FUNCTION public.is_operator(user_uuid UUID)
+-- Helper function to check if user is operator or higher
+CREATE OR REPLACE FUNCTION is_operator_or_admin()
 RETURNS BOOLEAN AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.user_roles
-    WHERE user_id = user_uuid
-    AND role_name = 'EMERGENCY_OPERATOR'
-  );
-$$ LANGUAGE sql STABLE SECURITY DEFINER;
-
--- Helper: is user doctor
-CREATE OR REPLACE FUNCTION public.is_doctor(user_uuid UUID)
-RETURNS BOOLEAN AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.user_roles
-    WHERE user_id = user_uuid
-    AND role_name = 'DOCTOR'
-  );
-$$ LANGUAGE sql STABLE SECURITY DEFINER;
+  SELECT role IN ('EMERGENCY_OPERATOR', 'ADMIN', 'SUPER_ADMIN') FROM profiles WHERE id = auth.uid()
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
 
 -- ============================================================
--- PROFILES
+-- PROFILES POLICIES
 -- ============================================================
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "profiles_select_own" ON public.profiles
-  FOR SELECT USING (auth.uid() = id OR public.is_admin(auth.uid()));
+CREATE POLICY "profiles_select_own" ON profiles
+  FOR SELECT USING (auth.uid() = id);
 
-CREATE POLICY "profiles_insert_own" ON public.profiles
-  FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "profiles_update_own" ON profiles
+  FOR UPDATE USING (auth.uid() = id);
 
-CREATE POLICY "profiles_update_own" ON public.profiles
-  FOR UPDATE USING (auth.uid() = id OR public.is_admin(auth.uid()));
+CREATE POLICY "profiles_admin_all" ON profiles
+  FOR ALL USING (is_admin());
 
-CREATE POLICY "profiles_delete_admin" ON public.profiles
-  FOR DELETE USING (public.is_admin(auth.uid()));
-
--- ============================================================
--- USER ROLES
--- ============================================================
-ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "user_roles_select" ON public.user_roles
-  FOR SELECT USING (auth.uid() = user_id OR public.is_admin(auth.uid()));
-
-CREATE POLICY "user_roles_insert_admin" ON public.user_roles
-  FOR INSERT WITH CHECK (public.is_admin(auth.uid()));
-
-CREATE POLICY "user_roles_delete_admin" ON public.user_roles
-  FOR DELETE USING (public.is_admin(auth.uid()));
+CREATE POLICY "profiles_operator_select" ON profiles
+  FOR SELECT USING (is_operator_or_admin());
 
 -- ============================================================
--- TRUSTED CONTACTS
+-- NOTIFICATION PREFERENCES POLICIES
 -- ============================================================
-ALTER TABLE public.trusted_contacts ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "trusted_contacts_own" ON public.trusted_contacts
+CREATE POLICY "notif_prefs_own" ON notification_preferences
   FOR ALL USING (auth.uid() = user_id);
 
 -- ============================================================
--- NOTIFICATION PREFERENCES
+-- TRUSTED CONTACTS POLICIES
 -- ============================================================
-ALTER TABLE public.notification_preferences ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "notif_prefs_own" ON public.notification_preferences
+CREATE POLICY "trusted_contacts_own" ON trusted_contacts
   FOR ALL USING (auth.uid() = user_id);
 
 -- ============================================================
--- EMERGENCY REPORTS
+-- EMERGENCY REPORTS POLICIES
 -- ============================================================
-ALTER TABLE public.emergency_reports ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "reports_select_own" ON public.emergency_reports
-  FOR SELECT USING (
-    auth.uid() = user_id
-    OR public.is_admin(auth.uid())
-    OR public.is_operator(auth.uid())
-  );
+CREATE POLICY "reports_user_own" ON emergency_reports
+  FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "reports_insert_own" ON public.emergency_reports
+CREATE POLICY "reports_user_insert" ON emergency_reports
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "reports_update_own_or_operator" ON public.emergency_reports
+CREATE POLICY "reports_user_update_own" ON emergency_reports
   FOR UPDATE USING (
     auth.uid() = user_id
-    OR public.is_admin(auth.uid())
-    OR public.is_operator(auth.uid())
+    AND status IN ('DRAFT', 'SUBMITTED')
   );
 
--- ============================================================
--- EMERGENCY TRIAGE
--- ============================================================
-ALTER TABLE public.emergency_triage_answers ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "reports_operator_select" ON emergency_reports
+  FOR SELECT USING (is_operator_or_admin());
 
-CREATE POLICY "triage_via_report" ON public.emergency_triage_answers
+CREATE POLICY "reports_operator_update" ON emergency_reports
+  FOR UPDATE USING (is_operator_or_admin());
+
+-- ============================================================
+-- TRIAGE ANSWERS POLICIES
+-- ============================================================
+
+CREATE POLICY "triage_user_own" ON emergency_triage_answers
   FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.emergency_reports r
-      WHERE r.id = report_id
-      AND (
-        r.user_id = auth.uid()
-        OR public.is_admin(auth.uid())
-        OR public.is_operator(auth.uid())
-      )
-    )
+    EXISTS (SELECT 1 FROM emergency_reports WHERE id = report_id AND user_id = auth.uid())
   );
 
--- ============================================================
--- EMERGENCY LOCATIONS
--- ============================================================
-ALTER TABLE public.emergency_locations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "triage_operator" ON emergency_triage_answers
+  FOR SELECT USING (is_operator_or_admin());
 
-CREATE POLICY "locations_via_report" ON public.emergency_locations
+-- ============================================================
+-- EMERGENCY LOCATIONS POLICIES
+-- ============================================================
+
+CREATE POLICY "locations_user_own" ON emergency_locations
   FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.emergency_reports r
-      WHERE r.id = report_id
-      AND (
-        r.user_id = auth.uid()
-        OR public.is_admin(auth.uid())
-        OR public.is_operator(auth.uid())
-      )
-    )
+    EXISTS (SELECT 1 FROM emergency_reports WHERE id = report_id AND user_id = auth.uid())
   );
 
--- ============================================================
--- EMERGENCY MEDIA
--- ============================================================
-ALTER TABLE public.emergency_media ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "locations_operator" ON emergency_locations
+  FOR SELECT USING (is_operator_or_admin());
 
-CREATE POLICY "media_via_report" ON public.emergency_media
+-- ============================================================
+-- EMERGENCY MEDIA POLICIES
+-- ============================================================
+
+CREATE POLICY "media_user_own" ON emergency_media
   FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM public.emergency_reports r
-      WHERE r.id = report_id
-      AND (
-        r.user_id = auth.uid()
-        OR public.is_admin(auth.uid())
-        OR public.is_operator(auth.uid())
-      )
-    )
+    EXISTS (SELECT 1 FROM emergency_reports WHERE id = report_id AND user_id = auth.uid())
   );
 
--- ============================================================
--- REPORT STATUS HISTORY / EVENTS
--- ============================================================
-ALTER TABLE public.report_status_history ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "media_operator" ON emergency_media
+  FOR SELECT USING (is_operator_or_admin());
 
-CREATE POLICY "report_status_history_via_report" ON public.report_status_history
+-- ============================================================
+-- REPORT STATUS HISTORY POLICIES
+-- ============================================================
+
+CREATE POLICY "status_history_user_own" ON report_status_history
   FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.emergency_reports r
-      WHERE r.id = report_id
-      AND (
-        r.user_id = auth.uid()
-        OR public.is_admin(auth.uid())
-        OR public.is_operator(auth.uid())
-      )
-    )
+    EXISTS (SELECT 1 FROM emergency_reports WHERE id = report_id AND user_id = auth.uid())
   );
 
-CREATE POLICY "report_status_history_insert_operator" ON public.report_status_history
-  FOR INSERT WITH CHECK (
-    public.is_admin(auth.uid())
-    OR public.is_operator(auth.uid())
-    OR EXISTS (
-      SELECT 1 FROM public.emergency_reports r
-      WHERE r.id = report_id AND r.user_id = auth.uid()
-    )
-  );
+CREATE POLICY "status_history_operator" ON report_status_history
+  FOR ALL USING (is_operator_or_admin());
 
-ALTER TABLE public.emergency_report_events ENABLE ROW LEVEL SECURITY;
+-- ============================================================
+-- REPORT EVENTS POLICIES
+-- ============================================================
 
-CREATE POLICY "report_events_via_report" ON public.emergency_report_events
+CREATE POLICY "events_user_own" ON emergency_report_events
   FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM public.emergency_reports r
-      WHERE r.id = report_id
-      AND (
-        r.user_id = auth.uid()
-        OR public.is_admin(auth.uid())
-        OR public.is_operator(auth.uid())
-      )
-    )
+    is_visible_to_user = TRUE AND
+    EXISTS (SELECT 1 FROM emergency_reports WHERE id = report_id AND user_id = auth.uid())
   );
 
-CREATE POLICY "report_events_insert" ON public.emergency_report_events
+CREATE POLICY "events_operator" ON emergency_report_events
+  FOR ALL USING (is_operator_or_admin());
+
+-- ============================================================
+-- FALSE REPORT CASES POLICIES
+-- ============================================================
+
+CREATE POLICY "false_reports_admin" ON false_report_cases
+  FOR ALL USING (is_admin());
+
+CREATE POLICY "false_reports_user_view_own" ON false_report_cases
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- ============================================================
+-- SUSPENSIONS POLICIES
+-- ============================================================
+
+CREATE POLICY "suspensions_admin" ON suspensions
+  FOR ALL USING (is_admin());
+
+CREATE POLICY "suspensions_user_view_own" ON suspensions
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- ============================================================
+-- SPECIALTIES - PUBLIC READ
+-- ============================================================
+
+CREATE POLICY "specialties_public_read" ON specialties
+  FOR SELECT USING (TRUE);
+
+CREATE POLICY "specialties_admin_write" ON specialties
+  FOR ALL USING (is_admin());
+
+-- ============================================================
+-- HEALTHCARE FACILITIES - PUBLIC READ
+-- ============================================================
+
+CREATE POLICY "facilities_public_read" ON healthcare_facilities
+  FOR SELECT USING (is_active = TRUE);
+
+CREATE POLICY "facilities_admin_all" ON healthcare_facilities
+  FOR ALL USING (is_admin());
+
+CREATE POLICY "facility_services_public_read" ON facility_services
+  FOR SELECT USING (TRUE);
+
+CREATE POLICY "facility_services_admin" ON facility_services
+  FOR ALL USING (is_admin());
+
+-- ============================================================
+-- PHARMACIES - PUBLIC READ
+-- ============================================================
+
+CREATE POLICY "pharmacies_public_read" ON pharmacies
+  FOR SELECT USING (is_active = TRUE);
+
+CREATE POLICY "pharmacies_admin" ON pharmacies
+  FOR ALL USING (is_admin());
+
+-- ============================================================
+-- LABORATORIES - PUBLIC READ
+-- ============================================================
+
+CREATE POLICY "laboratories_public_read" ON laboratories
+  FOR SELECT USING (is_active = TRUE);
+
+CREATE POLICY "laboratories_admin" ON laboratories
+  FOR ALL USING (is_admin());
+
+-- ============================================================
+-- DOCTORS POLICIES
+-- ============================================================
+
+CREATE POLICY "doctors_public_read" ON doctors
+  FOR SELECT USING (is_active = TRUE);
+
+CREATE POLICY "doctors_admin_all" ON doctors
+  FOR ALL USING (is_admin());
+
+CREATE POLICY "doctor_specialties_public_read" ON doctor_specialties
+  FOR SELECT USING (TRUE);
+
+CREATE POLICY "doctor_specialties_admin" ON doctor_specialties
+  FOR ALL USING (is_admin());
+
+CREATE POLICY "doctor_availability_public_read" ON doctor_availability
+  FOR SELECT USING (is_active = TRUE);
+
+CREATE POLICY "doctor_availability_admin" ON doctor_availability
+  FOR ALL USING (is_admin());
+
+-- ============================================================
+-- APPOINTMENTS POLICIES
+-- ============================================================
+
+CREATE POLICY "appointments_patient_own" ON appointments
+  FOR SELECT USING (auth.uid() = patient_id);
+
+CREATE POLICY "appointments_patient_insert" ON appointments
+  FOR INSERT WITH CHECK (auth.uid() = patient_id);
+
+CREATE POLICY "appointments_patient_cancel" ON appointments
+  FOR UPDATE USING (
+    auth.uid() = patient_id
+    AND status IN ('REQUESTED', 'CONFIRMED')
+  );
+
+CREATE POLICY "appointments_admin_all" ON appointments
+  FOR ALL USING (is_admin());
+
+CREATE POLICY "appt_history_patient_own" ON appointment_status_history
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM appointments WHERE id = appointment_id AND patient_id = auth.uid())
+  );
+
+CREATE POLICY "appt_history_admin" ON appointment_status_history
+  FOR ALL USING (is_admin());
+
+-- ============================================================
+-- NOTIFICATIONS POLICIES
+-- ============================================================
+
+CREATE POLICY "notifications_own" ON notifications
+  FOR ALL USING (auth.uid() = user_id);
+
+-- ============================================================
+-- FIRST AID - PUBLIC READ
+-- ============================================================
+
+CREATE POLICY "first_aid_categories_public" ON first_aid_categories
+  FOR SELECT USING (is_published = TRUE);
+
+CREATE POLICY "first_aid_categories_admin" ON first_aid_categories
+  FOR ALL USING (is_admin());
+
+CREATE POLICY "first_aid_guides_public" ON first_aid_guides
+  FOR SELECT USING (is_published = TRUE);
+
+CREATE POLICY "first_aid_guides_admin" ON first_aid_guides
+  FOR ALL USING (is_admin());
+
+CREATE POLICY "first_aid_steps_public" ON first_aid_steps
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM first_aid_guides WHERE id = guide_id AND is_published = TRUE)
+  );
+
+CREATE POLICY "first_aid_steps_admin" ON first_aid_steps
+  FOR ALL USING (is_admin());
+
+CREATE POLICY "saved_guides_own" ON saved_first_aid_guides
+  FOR ALL USING (auth.uid() = user_id);
+
+-- ============================================================
+-- AUDIT LOGS - ADMIN ONLY
+-- ============================================================
+
+CREATE POLICY "audit_logs_admin" ON audit_logs
+  FOR SELECT USING (is_admin());
+
+CREATE POLICY "audit_logs_insert_service" ON audit_logs
   FOR INSERT WITH CHECK (TRUE);
 
 -- ============================================================
--- APPOINTMENTS
+-- ADMIN NOTES
 -- ============================================================
-ALTER TABLE public.appointments ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "appointments_patient" ON public.appointments
-  FOR SELECT USING (
-    auth.uid() = patient_id
-    OR public.is_admin(auth.uid())
-    OR EXISTS (
-      SELECT 1 FROM public.doctors d
-      WHERE d.id = doctor_id AND d.user_id = auth.uid()
-    )
-  );
-
-CREATE POLICY "appointments_insert_patient" ON public.appointments
-  FOR INSERT WITH CHECK (auth.uid() = patient_id);
-
-CREATE POLICY "appointments_update" ON public.appointments
-  FOR UPDATE USING (
-    auth.uid() = patient_id
-    OR public.is_admin(auth.uid())
-    OR EXISTS (
-      SELECT 1 FROM public.doctors d
-      WHERE d.id = doctor_id AND d.user_id = auth.uid()
-    )
-  );
+CREATE POLICY "admin_notes_admin" ON admin_notes
+  FOR ALL USING (is_admin());
 
 -- ============================================================
--- NOTIFICATIONS
+-- SYSTEM SETTINGS
 -- ============================================================
-ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "notifications_own" ON public.notifications
-  FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "system_settings_public_read" ON system_settings
+  FOR SELECT USING (is_public = TRUE OR is_admin());
 
--- ============================================================
--- PUBLIC READ TABLES (doctors, facilities, etc.)
--- ============================================================
-ALTER TABLE public.doctors ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "doctors_public_read" ON public.doctors
-  FOR SELECT USING (is_active = TRUE OR public.is_admin(auth.uid()));
-
-CREATE POLICY "doctors_admin_write" ON public.doctors
-  FOR INSERT WITH CHECK (public.is_admin(auth.uid()));
-
-CREATE POLICY "doctors_admin_update" ON public.doctors
-  FOR UPDATE USING (public.is_admin(auth.uid()));
-
-ALTER TABLE public.specialties ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "specialties_public_read" ON public.specialties FOR SELECT USING (TRUE);
-CREATE POLICY "specialties_admin_write" ON public.specialties FOR INSERT WITH CHECK (public.is_admin(auth.uid()));
-CREATE POLICY "specialties_admin_update" ON public.specialties FOR UPDATE USING (public.is_admin(auth.uid()));
-
-ALTER TABLE public.doctor_specialties ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "doctor_specialties_public_read" ON public.doctor_specialties FOR SELECT USING (TRUE);
-
-ALTER TABLE public.doctor_availability ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "doctor_availability_public_read" ON public.doctor_availability FOR SELECT USING (TRUE);
-
-ALTER TABLE public.healthcare_facilities ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "facilities_public_read" ON public.healthcare_facilities FOR SELECT USING (is_active = TRUE OR public.is_admin(auth.uid()));
-CREATE POLICY "facilities_admin_write" ON public.healthcare_facilities FOR INSERT WITH CHECK (public.is_admin(auth.uid()));
-CREATE POLICY "facilities_admin_update" ON public.healthcare_facilities FOR UPDATE USING (public.is_admin(auth.uid()));
-
-ALTER TABLE public.facility_services ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "facility_services_public_read" ON public.facility_services FOR SELECT USING (TRUE);
-
-ALTER TABLE public.pharmacies ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "pharmacies_public_read" ON public.pharmacies FOR SELECT USING (is_active = TRUE OR public.is_admin(auth.uid()));
-CREATE POLICY "pharmacies_admin_write" ON public.pharmacies FOR INSERT WITH CHECK (public.is_admin(auth.uid()));
-
-ALTER TABLE public.laboratories ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "labs_public_read" ON public.laboratories FOR SELECT USING (is_active = TRUE OR public.is_admin(auth.uid()));
-CREATE POLICY "labs_admin_write" ON public.laboratories FOR INSERT WITH CHECK (public.is_admin(auth.uid()));
-
-ALTER TABLE public.first_aid_categories ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "first_aid_cat_public_read" ON public.first_aid_categories FOR SELECT USING (is_active = TRUE);
-CREATE POLICY "first_aid_cat_admin_write" ON public.first_aid_categories FOR ALL USING (public.is_admin(auth.uid()));
-
-ALTER TABLE public.first_aid_guides ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "first_aid_guides_public_read" ON public.first_aid_guides FOR SELECT USING (review_status = 'published' OR public.is_admin(auth.uid()));
-CREATE POLICY "first_aid_guides_admin_write" ON public.first_aid_guides FOR ALL USING (public.is_admin(auth.uid()));
-
-ALTER TABLE public.first_aid_steps ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "first_aid_steps_public_read" ON public.first_aid_steps FOR SELECT USING (TRUE);
-CREATE POLICY "first_aid_steps_admin_write" ON public.first_aid_steps FOR ALL USING (public.is_admin(auth.uid()));
-
-ALTER TABLE public.saved_first_aid_guides ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "saved_guides_own" ON public.saved_first_aid_guides FOR ALL USING (auth.uid() = user_id);
-
-ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "audit_logs_admin_read" ON public.audit_logs FOR SELECT USING (public.is_admin(auth.uid()));
-CREATE POLICY "audit_logs_insert" ON public.audit_logs FOR INSERT WITH CHECK (TRUE);
-
-ALTER TABLE public.admin_notes ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "admin_notes_admin" ON public.admin_notes FOR ALL USING (public.is_admin(auth.uid()));
-
-ALTER TABLE public.system_settings ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "system_settings_admin_read" ON public.system_settings FOR SELECT USING (public.is_admin(auth.uid()));
-CREATE POLICY "system_settings_superadmin_write" ON public.system_settings FOR UPDATE USING (
-  EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role_name = 'SUPER_ADMIN')
-);
-
-ALTER TABLE public.false_report_cases ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "false_reports_admin" ON public.false_report_cases FOR SELECT USING (public.is_admin(auth.uid()) OR public.is_operator(auth.uid()));
-CREATE POLICY "false_reports_insert" ON public.false_report_cases FOR INSERT WITH CHECK (public.is_admin(auth.uid()) OR public.is_operator(auth.uid()));
-
-ALTER TABLE public.suspensions ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "suspensions_admin" ON public.suspensions FOR ALL USING (public.is_admin(auth.uid()));
-CREATE POLICY "suspensions_own_read" ON public.suspensions FOR SELECT USING (auth.uid() = user_id);
-
-ALTER TABLE public.roles ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "roles_public_read" ON public.roles FOR SELECT USING (TRUE);
+CREATE POLICY "system_settings_admin_write" ON system_settings
+  FOR ALL USING (is_admin());
