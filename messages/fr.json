@@ -1,8 +1,8 @@
 {
   "app": {
     "name": "SIHALINK",
-    "tagline": "Plateforme numérique d'urgence et de coordination de soins de santé",
-    "demo_badge": "Mode démo"
+    "tagline": "Plateforme d'urgence et de soins de santé",
+    "demo_banner": "Mode démonstration - Données simulées uniquement"
   },
   "nav": {
     "home": "Accueil",
@@ -15,64 +15,59 @@
     "laboratories": "Laboratoires",
     "first_aid": "Premiers secours",
     "notifications": "Notifications",
-    "profile": "Compte",
+    "profile": "Mon compte",
     "admin": "Administration",
-    "operator": "Opérations"
+    "operator": "Centre d'opérations"
   },
   "auth": {
-    "login": "Connexion",
+    "login": "Se connecter",
     "register": "Créer un compte",
-    "logout": "Déconnexion",
-    "email": "Adresse e-mail",
+    "logout": "Se déconnecter",
+    "forgot_password": "Mot de passe oublié ?",
+    "reset_password": "Réinitialiser le mot de passe",
+    "email": "Email",
     "password": "Mot de passe",
     "confirm_password": "Confirmer le mot de passe",
     "first_name": "Prénom",
     "last_name": "Nom",
     "phone": "Téléphone",
-    "forgot_password": "Mot de passe oublié ?",
-    "reset_password": "Réinitialiser le mot de passe",
-    "verify_email": "Vérifier votre adresse e-mail",
-    "already_have_account": "Déjà un compte ?",
     "no_account": "Pas encore de compte ?",
-    "email_placeholder": "exemple@email.com",
-    "password_placeholder": "Au moins 8 caractères",
-    "terms_agreement": "En vous inscrivant, vous acceptez nos CGU et notre politique de confidentialité",
-    "login_success": "Connexion réussie",
-    "register_success": "Compte créé. Veuillez vérifier votre e-mail",
-    "logout_success": "Déconnexion réussie"
+    "have_account": "Déjà un compte ?",
+    "verify_email": "Vérifiez votre email",
+    "verify_email_desc": "Un lien de vérification vous a été envoyé",
+    "errors": {
+      "invalid_credentials": "Email ou mot de passe incorrect",
+      "email_in_use": "Cet email est déjà utilisé",
+      "weak_password": "Mot de passe trop faible. Minimum 8 caractères.",
+      "passwords_mismatch": "Les mots de passe ne correspondent pas",
+      "general": "Une erreur s'est produite. Veuillez réessayer."
+    }
   },
   "emergency": {
     "title": "Signaler une urgence",
-    "cta": "Signaler une urgence",
-    "cta_subtitle": "En cas de danger réel uniquement",
-    "type_step": "Type d'urgence",
-    "triage_step": "Évaluation",
-    "location_step": "Localisation",
-    "media_step": "Médias (optionnel)",
-    "summary_step": "Récapitulatif",
-    "confirm_step": "Confirmer l'envoi",
+    "subtitle": "Pour les vraies urgences uniquement. L'abus entraîne la suspension du compte.",
     "types": {
       "MEDICAL": "Urgence médicale",
       "ACCIDENT": "Accident",
       "FIRE": "Incendie",
-      "PREGNANCY": "Urgence obstétricale",
+      "MATERNITY": "Maternité",
       "CHILD_EMERGENCY": "Urgence enfant",
       "ELDERLY_EMERGENCY": "Urgence personne âgée",
       "UNCONSCIOUS": "Personne inconsciente",
-      "BREATHING_DIFFICULTY": "Difficultés respiratoires",
+      "BREATHING_DIFFICULTY": "Difficulté respiratoire",
       "CHEST_PAIN": "Douleur thoracique",
-      "SEVERE_BLEEDING": "Hémorragie sévère",
+      "SEVERE_BLEEDING": "Saignement grave",
       "OTHER": "Autre"
     },
     "priority": {
       "CRITICAL": "Critique",
-      "HIGH": "Élevée",
-      "MEDIUM": "Modérée",
+      "HIGH": "Élevé",
+      "MEDIUM": "Moyen",
       "LOW": "Faible"
     },
     "status": {
       "DRAFT": "Brouillon",
-      "SUBMITTED": "Envoyé",
+      "SUBMITTED": "Soumis",
       "RECEIVED": "Reçu",
       "UNDER_REVIEW": "En cours d'examen",
       "ASSIGNED": "Assigné",
@@ -81,75 +76,29 @@
       "RESOLVED": "Résolu",
       "CANCELLED": "Annulé",
       "REJECTED": "Rejeté",
-      "FALSE_REPORT_REVIEW": "Faux signalement - examen en cours",
-      "CLOSED": "Fermé"
-    },
-    "disclaimer": "Ces informations sont fournies à titre indicatif uniquement et ne remplacent pas une évaluation médicale professionnelle.",
-    "dispatch_disclaimer": "Ce système n'est pas encore connecté aux services d'urgence officiels.",
-    "report_created": "Signalement créé avec succès",
-    "report_number": "Numéro de signalement",
-    "no_reports": "Aucun signalement"
+      "FALSE_REPORT_REVIEW": "Examen de fausse alerte",
+      "CLOSED": "Clôturé"
+    }
   },
   "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur s'est produite",
+    "retry": "Réessayer",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "delete": "Supprimer",
     "edit": "Modifier",
-    "add": "Ajouter",
-    "search": "Rechercher",
-    "filter": "Filtrer",
-    "loading": "Chargement...",
-    "error": "Une erreur s'est produite",
-    "retry": "Réessayer",
+    "confirm": "Confirmer",
     "back": "Retour",
     "next": "Suivant",
-    "previous": "Précédent",
-    "submit": "Soumettre",
-    "confirm": "Confirmer",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "clear": "Effacer",
     "yes": "Oui",
     "no": "Non",
-    "view_all": "Voir tout",
-    "close": "Fermer",
-    "required": "Obligatoire",
-    "optional": "Optionnel",
-    "demo_data": "Données de démonstration",
-    "not_connected": "Non connecté"
-  },
-  "errors": {
-    "required_field": "Ce champ est obligatoire",
-    "invalid_email": "Adresse e-mail invalide",
-    "password_too_short": "Mot de passe trop court (8 caractères minimum)",
-    "passwords_dont_match": "Les mots de passe ne correspondent pas",
-    "server_error": "Erreur serveur. Veuillez réessayer",
-    "not_found": "Élément introuvable",
-    "unauthorized": "Action non autorisée",
-    "network_error": "Erreur réseau. Vérifiez votre connexion",
-    "slot_taken": "Ce créneau est déjà réservé"
-  },
-  "triage": { "yes": "Oui", "no": "Non", "unknown": "Inconnu" },
-  "doctors": {
-    "title": "Annuaire des médecins",
-    "search": "Rechercher un médecin",
-    "specialty": "Spécialité",
-    "all_specialties": "Toutes les spécialités",
-    "book_appointment": "Prendre rendez-vous",
-    "verified": "Vérifié",
-    "demo_doctor": "Médecin démo",
-    "no_doctors": "Aucun médecin trouvé"
-  },
-  "appointments": {
-    "title": "Rendez-vous",
-    "book": "Prendre rendez-vous",
-    "no_appointments": "Aucun rendez-vous",
-    "cancel": "Annuler"
-  },
-  "admin": {
-    "title": "Administration",
-    "dashboard": "Tableau de bord",
-    "users": "Utilisateurs",
-    "reports": "Signalements",
-    "analytics": "Analytiques",
-    "audit_logs": "Journaux d'audit",
-    "settings": "Paramètres"
+    "all": "Tous",
+    "empty_state": "Aucun résultat",
+    "see_all": "Voir tout",
+    "demo_badge": "Démo"
   }
 }

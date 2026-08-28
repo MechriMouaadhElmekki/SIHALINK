@@ -1,8 +1,8 @@
 {
   "app": {
     "name": "SIHALINK",
-    "tagline": "Digital Emergency & Healthcare Coordination Platform",
-    "demo_badge": "Demo Mode"
+    "tagline": "Emergency & Healthcare Coordination Platform",
+    "demo_banner": "Demo mode - Simulated data only"
   },
   "nav": {
     "home": "Home",
@@ -15,41 +15,42 @@
     "laboratories": "Laboratories",
     "first_aid": "First Aid",
     "notifications": "Notifications",
-    "profile": "Account",
-    "admin": "Admin Panel",
+    "profile": "My Account",
+    "admin": "Admin",
     "operator": "Operations"
   },
   "auth": {
     "login": "Sign In",
     "register": "Create Account",
     "logout": "Sign Out",
-    "email": "Email address",
-    "password": "Password",
-    "confirm_password": "Confirm password",
-    "first_name": "First name",
-    "last_name": "Last name",
-    "phone": "Phone number",
     "forgot_password": "Forgot password?",
-    "reset_password": "Reset password",
-    "verify_email": "Verify your email",
-    "already_have_account": "Already have an account?",
+    "reset_password": "Reset Password",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "phone": "Phone",
     "no_account": "Don't have an account?",
-    "email_placeholder": "example@email.com",
-    "password_placeholder": "At least 8 characters",
-    "terms_agreement": "By registering, you agree to our Terms of Service and Privacy Policy",
-    "login_success": "Signed in successfully",
-    "register_success": "Account created. Please verify your email",
-    "logout_success": "Signed out"
+    "have_account": "Already have an account?",
+    "verify_email": "Verify your email",
+    "verify_email_desc": "A verification link has been sent to your email",
+    "errors": {
+      "invalid_credentials": "Invalid email or password",
+      "email_in_use": "This email is already in use",
+      "weak_password": "Password too weak. Minimum 8 characters.",
+      "passwords_mismatch": "Passwords do not match",
+      "general": "An error occurred. Please try again."
+    }
   },
   "emergency": {
     "title": "Report an Emergency",
-    "cta": "Report Emergency",
-    "cta_subtitle": "For real emergencies only",
+    "subtitle": "For real emergencies only. Abuse leads to account suspension.",
     "types": {
       "MEDICAL": "Medical Emergency",
       "ACCIDENT": "Accident",
       "FIRE": "Fire",
-      "PREGNANCY": "Maternity Emergency",
+      "MATERNITY": "Maternity Emergency",
       "CHILD_EMERGENCY": "Child Emergency",
       "ELDERLY_EMERGENCY": "Elderly Emergency",
       "UNCONSCIOUS": "Unconscious Person",
@@ -77,73 +78,27 @@
       "REJECTED": "Rejected",
       "FALSE_REPORT_REVIEW": "False Report Review",
       "CLOSED": "Closed"
-    },
-    "disclaimer": "This information is for informational purposes only and does not replace professional medical assessment.",
-    "dispatch_disclaimer": "This system is not yet connected to official emergency services.",
-    "report_created": "Report created successfully",
-    "report_number": "Report number",
-    "no_reports": "No reports found"
+    }
   },
   "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Try again",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
-    "add": "Add",
-    "search": "Search",
-    "filter": "Filter",
-    "loading": "Loading...",
-    "error": "An error occurred",
-    "retry": "Retry",
+    "confirm": "Confirm",
     "back": "Back",
     "next": "Next",
-    "previous": "Previous",
-    "submit": "Submit",
-    "confirm": "Confirm",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
     "yes": "Yes",
     "no": "No",
-    "view_all": "View all",
-    "close": "Close",
-    "required": "Required",
-    "optional": "Optional",
-    "demo_data": "Demo data",
-    "not_connected": "Not connected"
-  },
-  "errors": {
-    "required_field": "This field is required",
-    "invalid_email": "Invalid email address",
-    "password_too_short": "Password too short (minimum 8 characters)",
-    "passwords_dont_match": "Passwords do not match",
-    "server_error": "Server error. Please try again",
-    "not_found": "Not found",
-    "unauthorized": "Unauthorized action",
-    "network_error": "Network error. Check your connection",
-    "slot_taken": "This time slot is already booked"
-  },
-  "triage": { "yes": "Yes", "no": "No", "unknown": "Unknown" },
-  "doctors": {
-    "title": "Doctor Directory",
-    "search": "Search for a doctor",
-    "specialty": "Specialty",
-    "all_specialties": "All specialties",
-    "book_appointment": "Book Appointment",
-    "verified": "Verified",
-    "demo_doctor": "Demo Doctor",
-    "no_doctors": "No doctors found"
-  },
-  "appointments": {
-    "title": "Appointments",
-    "book": "Book Appointment",
-    "no_appointments": "No appointments",
-    "cancel": "Cancel"
-  },
-  "admin": {
-    "title": "Admin Panel",
-    "dashboard": "Dashboard",
-    "users": "Users",
-    "reports": "Reports",
-    "analytics": "Analytics",
-    "audit_logs": "Audit Logs",
-    "settings": "Settings"
+    "all": "All",
+    "empty_state": "No results found",
+    "see_all": "See all",
+    "demo_badge": "Demo"
   }
 }
