@@ -1,25 +1,27 @@
-import { createClient } from '@/lib/supabase/server';
-import type { Json } from '@/types/database';
+import { getSupabaseServiceClient } from './supabase/server';
 
-export async function logAudit(params: {
+export async function createAuditLog(params: {
   actorId?: string;
   actorRole?: string;
   action: string;
-  entityType: string;
+  entity: string;
   entityId?: string;
-  oldData?: Json;
-  newData?: Json;
-  metadata?: Json;
+  metadata?: Record<string, unknown>;
+  ipAddress?: string;
 }) {
-  const supabase = createClient();
-  await supabase.from('audit_logs').insert({
-    actor_id: params.actorId ?? null,
-    actor_role: params.actorRole ?? null,
-    action: params.action,
-    entity_type: params.entityType,
-    entity_id: params.entityId ?? null,
-    old_data: params.oldData ?? null,
-    new_data: params.newData ?? null,
-    metadata: params.metadata ?? null,
-  });
+  try {
+    const supabase = getSupabaseServiceClient();
+    await supabase.from('audit_logs').insert({
+      actor_id: params.actorId ?? null,
+      actor_role: params.actorRole ?? null,
+      action: params.action,
+      entity: params.entity,
+      entity_id: params.entityId ?? null,
+      metadata: params.metadata ?? null,
+      ip_address: params.ipAddress ?? null,
+    });
+  } catch (e) {
+    // Audit log failure must never break the main flow
+    console.error('[AUDIT LOG ERROR]', e);
+  }
 }

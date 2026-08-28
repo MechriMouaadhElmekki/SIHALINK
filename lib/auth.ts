@@ -1,57 +1,43 @@
-import { createClient } from '@/lib/supabase/server';
-import type { UserRole, Profile } from '@/types/database';
+import { getSupabaseServerClient } from './supabase/server';
+import { redirect } from 'next/navigation';
+import type { UserRole } from '@/types/database';
 
-export interface AuthUser {
-  id: string;
-  email: string | undefined;
-  roles: UserRole[];
-  profile: Profile | null;
+export async function getServerSession() {
+  const supabase = getSupabaseServerClient();
+  const { data: { session } } = await supabase.auth.getSession();
+  return session;
 }
 
-export async function getAuthUser(): Promise<AuthUser | null> {
-  const supabase = createClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error || !user) return null;
-
-  const [profileResult, rolesResult] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', user.id).single(),
-    supabase.from('user_roles').select('role_name').eq('user_id', user.id),
-  ]);
-
-  return {
-    id: user.id,
-    email: user.email,
-    roles: (rolesResult.data?.map(r => r.role_name) ?? ['USER']) as UserRole[],
-    profile: profileResult.data,
-  };
+export async function requireAuth() {
+  const session = await getServerSession();
+  if (!session) redirect('/login');
+  return session;
 }
 
-export function hasRole(user: AuthUser, role: UserRole): boolean {
-  return user.roles.includes(role);
+export async function getUserRoles(userId: string): Promise<UserRole[]> {
+  const supabase = getSupabaseServerClient();
+  const { data } = await supabase
+    .from('user_roles')
+    .select('roles(name)')
+    .eq('user_id', userId);
+  if (!data) return ['USER'];
+  return data.map((r: any) => r.roles?.name).filter(Boolean) as UserRole[];
 }
 
-export function isAdmin(user: AuthUser): boolean {
-  return user.roles.some(r => r === 'ADMIN' || r === 'SUPER_ADMIN');
+export async function requireRole(allowedRoles: UserRole[]) {
+  const session = await requireAuth();
+  const roles = await getUserRoles(session.user.id);
+  const hasRole = roles.some(r => allowedRoles.includes(r));
+  if (!hasRole) redirect('/');
+  return { session, roles };
 }
 
-export function isOperator(user: AuthUser): boolean {
-  return user.roles.includes('EMERGENCY_OPERATOR');
+export async function isAdmin(userId: string): Promise<boolean> {
+  const roles = await getUserRoles(userId);
+  return roles.some(r => ['ADMIN', 'SUPER_ADMIN'].includes(r));
 }
 
-export function isDoctor(user: AuthUser): boolean {
-  return user.roles.includes('DOCTOR');
-}
-
-export async function requireAuth(): Promise<AuthUser> {
-  const user = await getAuthUser();
-  if (!user) throw new Error('UNAUTHORIZED');
-  return user;
-}
-
-export async function requireRole(role: UserRole): Promise<AuthUser> {
-  const user = await requireAuth();
-  if (!hasRole(user, role) && !isAdmin(user)) {
-    throw new Error('FORBIDDEN');
-  }
-  return user;
+export async function isOperator(userId: string): Promise<boolean> {
+  const roles = await getUserRoles(userId);
+  return roles.some(r => ['EMERGENCY_OPERATOR', 'ADMIN', 'SUPER_ADMIN'].includes(r));
 }

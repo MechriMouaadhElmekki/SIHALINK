@@ -1,23 +1,6 @@
-import type { EmailProvider, SmsProvider, PushProvider } from './types';
-import { MockEmailProvider } from './mock-email';
-import { MockSmsProvider } from './mock-sms';
+import { MockEmailProvider, MockSmsProvider, MockPushProvider } from './mock-providers';
 
-function createEmailProvider(): EmailProvider {
-  const provider = process.env.EMAIL_PROVIDER || 'mock';
-  switch (provider) {
-    // case 'resend': return new ResendEmailProvider();
-    default: return new MockEmailProvider();
-  }
-}
-
-function createSmsProvider(): SmsProvider {
-  const provider = process.env.SMS_PROVIDER || 'mock';
-  switch (provider) {
-    // case 'twilio': return new TwilioSmsProvider();
-    default: return new MockSmsProvider();
-  }
-}
-
-export const emailProvider = createEmailProvider();
-export const smsProvider = createSmsProvider();
+export const emailProvider = new MockEmailProvider();
+export const smsProvider = new MockSmsProvider();
+export const pushProvider = new MockPushProvider();
 export type { EmailProvider, SmsProvider, PushProvider } from './types';

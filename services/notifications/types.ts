@@ -1,13 +1,17 @@
+// ============================================================
+// SIHALINK - Notification Provider Interfaces
+// ============================================================
+
 export interface EmailPayload {
   to: string;
   subject: string;
-  html: string;
-  text?: string;
+  body: string;
+  html?: string;
 }
 
 export interface SmsPayload {
   to: string;
-  body: string;
+  message: string;
 }
 
 export interface PushPayload {
