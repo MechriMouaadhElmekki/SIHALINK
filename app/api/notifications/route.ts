@@ -1,34 +1,48 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 
-function createClient() {
-  const cookieStore = cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name) { return cookieStore.get(name)?.value; },
-        set(name, value, options) { cookieStore.set({ name, value, ...options }); },
-        remove(name, options) { cookieStore.set({ name, value: '', ...options }); },
-      },
-    }
-  );
-}
-
-export async function GET() {
+export async function GET(req: NextRequest) {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { data: { user }, error: authErr } = await supabase.auth.getUser();
+  if (authErr || !user) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
 
-  const { data: notifications, error } = await supabase
+  const { searchParams } = new URL(req.url);
+  const unread_only = searchParams.get('unread_only') === 'true';
+  const limit = Math.min(100, parseInt(searchParams.get('limit') ?? '30'));
+
+  let query = supabase
     .from('notifications')
-    .select('*')
+    .select('id, type, title_ar, message_ar, is_read, created_at, related_report_id, related_appointment_id', { count: 'exact' })
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
-    .limit(50);
+    .limit(limit);
 
-  if (error) return NextResponse.json({ error: 'Failed to fetch notifications' }, { status: 500 });
-  return NextResponse.json({ notifications });
+  if (unread_only) query = query.eq('is_read', false);
+
+  const { data, error, count } = await query;
+  if (error) return NextResponse.json({ error: 'خطأ' }, { status: 500 });
+  return NextResponse.json({ data, count });
+}
+
+export async function PATCH(req: NextRequest) {
+  const supabase = createClient();
+  const { data: { user }, error: authErr } = await supabase.auth.getUser();
+  if (authErr || !user) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+
+  const body = await req.json().catch(() => ({}));
+  const ids: string[] | undefined = body.ids;
+  const mark_all: boolean = body.mark_all === true;
+
+  let query = supabase
+    .from('notifications')
+    .update({ is_read: true })
+    .eq('user_id', user.id);
+
+  if (!mark_all && ids && ids.length > 0) {
+    query = query.in('id', ids);
+  }
+
+  const { error } = await query;
+  if (error) return NextResponse.json({ error: 'خطأ في التحديث' }, { status: 500 });
+  return NextResponse.json({ ok: true });
 }
