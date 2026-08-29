@@ -1,117 +1,130 @@
-"use client";
-import React from 'react';
+'use client';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
-  LayoutDashboard, AlertTriangle, FileText, UserCog, Calendar,
-  Building2, Pill, FlaskConical, Heart, Bell, Settings, Shield,
-  Users, BarChart3, ClipboardList, LogOut
+  Heart, AlertTriangle, FileText, UserCheck, Calendar,
+  Building2, Pill, FlaskConical, BookOpen, Bell, User,
+  Settings, LayoutDashboard, LogOut, ShieldCheck, Headphones,
+  ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
-interface SidebarItem {
-  href: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  badge?: number;
-}
+const navItems = [
+  { href: '/dashboard', label: 'لوحة التحكم', icon: LayoutDashboard },
+  { href: '/emergency', label: 'طوارئ', icon: AlertTriangle, emergency: true },
+  { href: '/reports', label: 'بلاغاتي', icon: FileText },
+  { href: '/doctors', label: 'الأطباء', icon: UserCheck },
+  { href: '/appointments', label: 'المواعيد', icon: Calendar },
+  { href: '/facilities', label: 'المرافق', icon: Building2 },
+  { href: '/pharmacies', label: 'الصيدليات', icon: Pill },
+  { href: '/laboratories', label: 'المخابر', icon: FlaskConical },
+  { href: '/first-aid', label: 'الإسعافات الأولية', icon: BookOpen },
+];
+
+const bottomItems = [
+  { href: '/notifications', label: 'الإشعارات', icon: Bell },
+  { href: '/profile', label: 'ملفي', icon: User },
+  { href: '/settings', label: 'الإعدادات', icon: Settings },
+];
 
 interface SidebarProps {
-  role: string;
-  locale: string;
-  labels: Record<string, string>;
-  onSignOut: () => void;
+  userRole?: string[];
+  unreadCount?: number;
 }
 
-const userNavItems: SidebarItem[] = [
-  { href: '/dashboard', label: 'home', icon: LayoutDashboard },
-  { href: '/dashboard/emergency/new', label: 'emergency', icon: AlertTriangle },
-  { href: '/dashboard/reports', label: 'myReports', icon: FileText },
-  { href: '/dashboard/doctors', label: 'doctors', icon: UserCog },
-  { href: '/dashboard/appointments', label: 'appointments', icon: Calendar },
-  { href: '/dashboard/facilities', label: 'facilities', icon: Building2 },
-  { href: '/dashboard/pharmacies', label: 'pharmacies', icon: Pill },
-  { href: '/dashboard/laboratories', label: 'laboratories', icon: FlaskConical },
-  { href: '/dashboard/first-aid', label: 'firstAid', icon: Heart },
-  { href: '/dashboard/notifications', label: 'notifications', icon: Bell },
-];
-
-const adminNavItems: SidebarItem[] = [
-  { href: '/admin', label: 'overview', icon: LayoutDashboard },
-  { href: '/admin/users', label: 'users', icon: Users },
-  { href: '/admin/reports', label: 'reports', icon: FileText },
-  { href: '/admin/doctors', label: 'doctors', icon: UserCog },
-  { href: '/admin/facilities', label: 'facilities', icon: Building2 },
-  { href: '/admin/appointments', label: 'appointments', icon: Calendar },
-  { href: '/admin/first-aid', label: 'firstAid', icon: Heart },
-  { href: '/admin/false-reports', label: 'falseReports', icon: Shield },
-  { href: '/admin/analytics', label: 'analytics', icon: BarChart3 },
-  { href: '/admin/audit-logs', label: 'auditLogs', icon: ClipboardList },
-  { href: '/admin/settings', label: 'settings', icon: Settings },
-];
-
-const operatorNavItems: SidebarItem[] = [
-  { href: '/operator', label: 'overview', icon: LayoutDashboard },
-  { href: '/operator/reports', label: 'reports', icon: FileText },
-  { href: '/operator/assigned', label: 'assigned', icon: ClipboardList },
-];
-
-export function Sidebar({ role, locale, labels, onSignOut }: SidebarProps) {
+export function Sidebar({ userRole = [], unreadCount = 0 }: SidebarProps) {
   const pathname = usePathname();
-  const isRTL = locale === 'ar';
+  const router = useRouter();
 
-  const navItems = role === 'ADMIN' || role === 'SUPER_ADMIN'
-    ? adminNavItems
-    : role === 'EMERGENCY_OPERATOR'
-    ? operatorNavItems
-    : userNavItems;
+  const isAdmin = userRole.includes('ADMIN') || userRole.includes('SUPER_ADMIN');
+  const isOperator = userRole.includes('EMERGENCY_OPERATOR');
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  }
+
+  const NavLink = ({ href, label, icon: Icon, emergency, badge }: {
+    href: string; label: string; icon: React.ElementType;
+    emergency?: boolean; badge?: number;
+  }) => {
+    const active = pathname === href || pathname.startsWith(href + '/');
+    return (
+      <Link
+        href={href}
+        className={cn(
+          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group relative',
+          active
+            ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100',
+          emergency && 'hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400',
+          emergency && active && 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400',
+        )}
+      >
+        <Icon className={cn('w-5 h-5 shrink-0', emergency && 'text-red-500')} />
+        <span className="flex-1 truncate">{label}</span>
+        {badge !== undefined && badge > 0 && (
+          <Badge variant="destructive" className="h-5 min-w-[20px] text-xs px-1">{badge > 99 ? '99+' : badge}</Badge>
+        )}
+      </Link>
+    );
+  };
 
   return (
-    <aside className={cn(
-      'hidden md:flex flex-col w-64 border-e bg-card min-h-screen',
-      isRTL ? 'border-l border-r-0' : ''
-    )}>
-      <nav className="flex-1 space-y-1 p-4">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-          return (
-            <Link key={item.href} href={item.href}>
-              <div className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                isRTL ? 'flex-row-reverse' : '',
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              )}>
-                <Icon className="h-4 w-4 shrink-0" />
-                <span>{labels[item.label] || item.label}</span>
-              </div>
-            </Link>
-          );
-        })}
+    <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-white dark:bg-gray-900 border-e border-border fixed top-0 start-0 z-30">
+      {/* Logo */}
+      <div className="flex items-center gap-3 px-4 py-5 border-b border-border">
+        <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center shrink-0">
+          <Heart className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <p className="font-bold text-base leading-tight">SIHALINK</p>
+          <p className="text-xs text-muted-foreground">صحة لينك</p>
+        </div>
+      </div>
+
+      {/* Main nav */}
+      <nav className="flex-1 overflow-y-auto p-3 space-y-1">
+        {navItems.map(item => (
+          <NavLink key={item.href} {...item} />
+        ))}
+
+        {/* Role-based links */}
+        {isOperator && (
+          <>
+            <div className="my-2 border-t border-border" />
+            <NavLink href="/operator" label="لوحة المشغل" icon={Headphones} />
+          </>
+        )}
+        {isAdmin && (
+          <>
+            <div className="my-2 border-t border-border" />
+            <NavLink href="/admin" label="لوحة الإدارة" icon={ShieldCheck} />
+          </>
+        )}
       </nav>
-      <Separator />
-      <div className="p-4">
-        <Link href="/dashboard/account">
-          <div className={cn(
-            'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors',
-            isRTL ? 'flex-row-reverse' : ''
-          )}>
-            <Settings className="h-4 w-4" />
-            <span>{labels.settings || 'Settings'}</span>
-          </div>
-        </Link>
-        <Button
-          variant="ghost"
-          className={cn('w-full justify-start gap-3 text-muted-foreground hover:text-destructive', isRTL ? 'flex-row-reverse' : '')}
-          onClick={onSignOut}
+
+      {/* Bottom nav */}
+      <div className="p-3 border-t border-border space-y-1">
+        {bottomItems.map(item => (
+          <NavLink
+            key={item.href}
+            {...item}
+            badge={item.href === '/notifications' ? unreadCount : undefined}
+          />
+        ))}
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all"
         >
-          <LogOut className="h-4 w-4" />
-          <span>{labels.signOut || 'Sign out'}</span>
-        </Button>
+          <LogOut className="w-5 h-5 shrink-0" />
+          تسجيل الخروج
+        </button>
       </div>
     </aside>
   );
