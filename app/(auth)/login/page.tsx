@@ -1,126 +1,103 @@
-"use client";
-import React, { useState } from 'react';
+'use client';
+import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, LogIn } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { createClient } from '@/lib/supabase/client';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
 
-const loginSchema = z.object({
+const schema = z.object({
   email: z.string().email('البريد الإلكتروني غير صحيح'),
   password: z.string().min(1, 'كلمة المرور مطلوبة'),
 });
-
-type LoginForm = z.infer<typeof loginSchema>;
+type FormData = z.infer<typeof schema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirectTo') || '/dashboard';
+  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const supabase = createClient();
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
+    resolver: zodResolver(schema),
   });
 
-  const onSubmit = async (data: LoginForm) => {
-    setError(null);
-    const { error: authError } = await supabase.auth.signInWithPassword({
+  async function onSubmit(data: FormData) {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
-    if (authError) {
-      setError('بيانات الدخول غير صحيحة. يرجى المحاولة مجدداً.');
+    if (error) {
+      toast({ variant: 'destructive', title: 'فشل تسجيل الدخول', description: 'تحقق من بيانات الاعتماد.' });
       return;
     }
-    router.push('/dashboard');
+    router.push(redirectTo);
     router.refresh();
-  };
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-900 dark:to-slate-800 p-4" dir="rtl">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4">
-            <span className="text-2xl font-bold text-primary-foreground">SH</span>
+    <Card className="shadow-xl border-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur">
+      <CardHeader className="text-center pb-2">
+        <CardTitle className="text-2xl font-bold">تسجيل الدخول</CardTitle>
+        <CardDescription>مرحباً بك في SIHALINK</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" dir="rtl" noValidate>
+          <div className="space-y-1">
+            <Label htmlFor="email">البريد الإلكتروني</Label>
+            <Input
+              id="email"
+              type="email"
+              autoComplete="email"
+              placeholder="example@email.com"
+              dir="ltr"
+              error={errors.email?.message}
+              {...register('email')}
+            />
           </div>
-          <h1 className="text-3xl font-bold text-primary">SIHALINK</h1>
-          <p className="text-muted-foreground mt-1">منصة الطوارئ والرعاية الصحية</p>
-        </div>
-
-        <Card className="shadow-xl border-0">
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-xl">تسجيل الدخول</CardTitle>
-            <CardDescription>أدخل بيانات حسابك للمتابعة</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {error && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="email">البريد الإلكتروني</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="example@email.com"
-                  dir="ltr"
-                  {...register('email')}
-                />
-                {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">كلمة المرور</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
-                    {...register('password')}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute start-0 top-0 h-10 w-10"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-                {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
-              </div>
-
-              <div className="flex justify-end">
-                <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-                  نسيت كلمة المرور؟
-                </Link>
-              </div>
-
-              <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin me-2" /> : null}
-                {isSubmitting ? 'جارٍ تسجيل الدخول...' : 'تسجيل الدخول'}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">ليس لديك حساب؟ </span>
-              <Link href="/register" className="text-primary font-medium hover:underline">إنشاء حساب</Link>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">كلمة المرور</Label>
+              <Link href="/forgot-password" className="text-xs text-blue-600 hover:underline">نسيت كلمة المرور؟</Link>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                placeholder="••••••••"
+                error={errors.password?.message}
+                {...register('password')}
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 start-3 flex items-center text-muted-foreground hover:text-foreground"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+          <Button type="submit" className="w-full" loading={isSubmitting}>
+            <LogIn className="w-4 h-4" />
+            تسجيل الدخول
+          </Button>
+        </form>
+      </CardContent>
+      <CardFooter className="justify-center text-sm text-muted-foreground">
+        ليس لديك حساب؟&nbsp;
+        <Link href="/register" className="text-blue-600 font-medium hover:underline">إنشاء حساب</Link>
+      </CardFooter>
+    </Card>
   );
 }
