@@ -2,46 +2,61 @@
  * SIHALINK Service Worker
  *
  * Strategy:
- *   - App Shell (/, /login, /offline.html): Cache-first, update in background
+ *   - Static assets (/offline.html, /manifest.json, icons): Cache-first
+ *   - Next.js static chunks (_next/static/*): Cache-first, long TTL
  *   - API routes (/api/*): Network-only — never serve stale health/emergency data
- *   - Static assets (_next/static/*): Cache-first, long TTL
- *   - Navigation fallback: serve /offline.html when network is unavailable
+ *   - Navigation requests: Network-first, fallback to /offline.html
+ *   - Everything else: Network-first, fallback to cache
  *
- * NOTE: This SW is registered manually via /sw-register.js.
- * It does NOT use Workbox to avoid a build-step dependency.
+ * To force clients to pick up a new SW version, increment CACHE_VERSION.
+ *
+ * NOTE: Registered by components/pwa/service-worker-register.tsx via useEffect.
+ * The public/sw-register.js file is kept as a reference only.
  */
 
 const CACHE_VERSION = 'sihalink-v1';
-const STATIC_CACHE  = `${CACHE_VERSION}-static`;
-const SHELL_CACHE   = `${CACHE_VERSION}-shell`;
+const STATIC_CACHE = `${CACHE_VERSION}-static`;
+const SHELL_CACHE  = `${CACHE_VERSION}-shell`;
 
+// Pre-cache only truly static, auth-independent assets.
+// '/' is intentionally excluded — it is a dynamic SSR route and
+// pre-caching it could serve stale or session-specific content.
 const SHELL_URLS = [
-  '/',
   '/offline.html',
   '/manifest.json',
   '/icons/icon-192.svg',
   '/icons/icon-512.svg',
+  '/icons/icon-maskable.svg',
 ];
 
-// ── Install: pre-cache app shell ──────────────────────────────────────────────
+// ── Install: pre-cache static shell assets ────────────────────────────────────
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(SHELL_CACHE)
+    caches
+      .open(SHELL_CACHE)
       .then((cache) => cache.addAll(SHELL_URLS))
       .then(() => self.skipWaiting())
   );
 });
 
-// ── Activate: delete old caches ───────────────────────────────────────────────
+// ── Activate: purge stale cache versions ──────────────────────────────────────
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((k) => k.startsWith('sihalink-') && k !== STATIC_CACHE && k !== SHELL_CACHE)
-          .map((k) => caches.delete(k))
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter(
+              (k) =>
+                k.startsWith('sihalink-') &&
+                k !== STATIC_CACHE &&
+                k !== SHELL_CACHE
+            )
+            .map((k) => caches.delete(k))
+        )
       )
-    ).then(() => self.clients.claim())
+      .then(() => self.clients.claim())
   );
 });
 
@@ -53,20 +68,31 @@ self.addEventListener('fetch', (event) => {
   // 1. Never intercept non-GET or cross-origin requests
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
-  // 2. API routes: network-only (health/emergency data must never be stale)
+  // 2. API routes: strict network-only.
+  //    Emergency/health data must NEVER be served from cache.
+  //    Return a structured 503 JSON when offline so clients can handle it.
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
-      fetch(request).catch(() =>
-        new Response(JSON.stringify({ error: 'offline' }), {
-          status: 503,
-          headers: { 'Content-Type': 'application/json' },
-        })
+      fetch(request).catch(
+        () =>
+          new Response(
+            JSON.stringify({ error: 'offline', code: 503 }),
+            {
+              status: 503,
+              headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-store',
+              },
+            }
+          )
       )
     );
     return;
   }
 
-  // 3. Next.js static chunks: cache-first
+  // 3. Next.js content-hashed static chunks: cache-first.
+  //    Safe because filenames include a content hash — a new deploy
+  //    produces new filenames, so stale entries are never accidentally served.
   if (url.pathname.startsWith('/_next/static/')) {
     event.respondWith(
       caches.open(STATIC_CACHE).then((cache) =>
@@ -82,21 +108,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 4. Navigation requests: network-first, offline fallback
+  // 4. Navigation (HTML page) requests: network-first.
+  //    Fall back to /offline.html only when the network is truly unreachable.
+  //    Never serve a cached HTML page for authenticated app routes.
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .catch(() =>
-          caches.match('/offline.html').then(
-            (r) => r ?? new Response('Offline', { status: 503 })
-          )
-        )
+      fetch(request).catch(() =>
+        caches
+          .match('/offline.html')
+          .then((r) => r ?? new Response('Offline', { status: 503 }))
+      )
     );
     return;
   }
 
-  // 5. Shell assets: cache-first
+  // 5. Shell/static assets (manifest, icons, offline page itself):
+  //    cache-first, fall back to network.
   event.respondWith(
-    caches.match(request).then((cached) => cached ?? fetch(request))
+    caches
+      .match(request)
+      .then((cached) => cached ?? fetch(request))
   );
 });

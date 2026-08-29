@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
+import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -13,9 +14,7 @@ export const metadata: Metadata = {
   description: 'منصة الطوارئ والرعاية الصحية الرقمية للجزائر | SIHALINK - Digital Emergency & Healthcare Platform for Algeria',
   keywords: ['emergency', 'healthcare', 'Algeria', 'طوارئ', 'صحة', 'الجزائر'],
   authors: [{ name: 'SIHALINK Team' }],
-  // PWA manifest
   manifest: '/manifest.json',
-  // Apple PWA metadata
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -36,7 +35,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  // Prevent forced zoom on input focus (iOS)
   maximumScale: 1,
   userScalable: false,
   themeColor: [
@@ -62,8 +60,7 @@ export default async function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Service Worker registration — no-op if SW not supported */}
-        <script src="/sw-register.js" defer />
+        {/* sw-register.js removed — registration handled by ServiceWorkerRegister component */}
       </head>
       <body className="min-h-screen bg-background antialiased">
         <ThemeProvider
@@ -75,6 +72,8 @@ export default async function RootLayout({
           <NextIntlClientProvider messages={messages} locale={locale}>
             {children}
             <Toaster />
+            {/* Registers /sw.js after hydration — client-only, renders nothing */}
+            <ServiceWorkerRegister />
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>
