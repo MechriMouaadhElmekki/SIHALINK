@@ -1,42 +1,33 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 
-export async function GET(request: NextRequest) {
-  const cookieStore = cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name) { return cookieStore.get(name)?.value; },
-        set(name, value, options) { cookieStore.set({ name, value, ...options }); },
-        remove(name, options) { cookieStore.set({ name, value: '', ...options }); },
-      },
-    }
-  );
+export async function GET(req: NextRequest) {
+  const supabase = createClient();
+  const { data: { user }, error: authErr } = await supabase.auth.getUser();
+  if (authErr || !user) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
 
-  const { searchParams } = new URL(request.url);
-  const type = searchParams.get('type');
-  const wilaya = searchParams.get('wilaya');
-  const search = searchParams.get('q');
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = Math.min(parseInt(searchParams.get('limit') || '12'), 50);
-  const offset = (page - 1) * limit;
+  const { searchParams } = new URL(req.url);
+  const search = searchParams.get('search') ?? '';
+  const facility_type = searchParams.get('facility_type') ?? '';
+  const wilaya = searchParams.get('wilaya') ?? '';
+  const has_emergency = searchParams.get('has_emergency') === 'true';
+  const limit = Math.min(100, parseInt(searchParams.get('limit') ?? '20'));
+  const page = Math.max(1, parseInt(searchParams.get('page') ?? '1'));
+  const from = (page - 1) * limit;
 
   let query = supabase
-    .from('healthcare_facilities')
-    .select('*, facility_locations(*), facility_services(name)', { count: 'exact' })
-    .eq('is_active', true)
-    .range(offset, offset + limit - 1)
-    .order('name');
+    .from('health_facilities')
+    .select('id, name, facility_type, address, city, wilaya, phone, emergency_phone, opening_hours, has_emergency, latitude, longitude', { count: 'exact' })
+    .order('has_emergency', { ascending: false })
+    .order('name', { ascending: true })
+    .range(from, from + limit - 1);
 
-  if (type) query = query.eq('type', type);
-  if (wilaya) query = query.eq('wilaya', wilaya);
   if (search) query = query.ilike('name', `%${search}%`);
+  if (facility_type) query = query.eq('facility_type', facility_type);
+  if (wilaya) query = query.eq('wilaya', wilaya);
+  if (has_emergency) query = query.eq('has_emergency', true);
 
-  const { data: facilities, count, error } = await query;
-  if (error) return NextResponse.json({ error: 'Failed to fetch facilities' }, { status: 500 });
-
-  return NextResponse.json({ facilities, total: count, page, limit });
+  const { data, error, count } = await query;
+  if (error) return NextResponse.json({ error: 'خطأ' }, { status: 500 });
+  return NextResponse.json({ data, count, page, limit });
 }
