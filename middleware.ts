@@ -1,55 +1,92 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const PROTECTED_ROUTES = ['/dashboard', '/emergency', '/reports', '/appointments', '/account', '/first-aid', '/doctors', '/facilities', '/pharmacies', '/laboratories', '/notifications'];
-const ADMIN_ROUTES = ['/admin'];
-const OPERATOR_ROUTES = ['/operator'];
-const AUTH_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email'];
+const PUBLIC_ROUTES = [
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/verify-email',
+  '/unauthorized',
+  '/',
+  '/about',
+  '/first-aid',
+];
+
+const PROTECTED_ROUTE_PREFIXES = [
+  '/dashboard',
+  '/emergency',
+  '/reports',
+  '/appointments',
+  '/profile',
+  '/settings',
+  '/notifications',
+];
+
+const ADMIN_ROUTE_PREFIXES = ['/admin'];
+const OPERATOR_ROUTE_PREFIXES = ['/operator'];
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request: { headers: request.headers } });
+  let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) { return request.cookies.get(name)?.value; },
-        set(name: string, value: string, options: CookieOptions) {
-          request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({ request: { headers: request.headers } });
-          response.cookies.set({ name, value, ...options });
+        getAll() {
+          return request.cookies.getAll();
         },
-        remove(name: string, options: CookieOptions) {
-          request.cookies.set({ name, value: '', ...options });
-          response = NextResponse.next({ request: { headers: request.headers } });
-          response.cookies.set({ name, value: '', ...options });
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+          supabaseResponse = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
         },
       },
     }
   );
 
-  const { data: { session } } = await supabase.auth.getSession();
-  const pathname = request.nextUrl.pathname;
+  const { data: { user } } = await supabase.auth.getUser();
+  const { pathname } = request.nextUrl;
 
-  const isProtected = PROTECTED_ROUTES.some(r => pathname.startsWith(r));
-  const isAdmin = ADMIN_ROUTES.some(r => pathname.startsWith(r));
-  const isOperator = OPERATOR_ROUTES.some(r => pathname.startsWith(r));
-  const isAuth = AUTH_ROUTES.some(r => pathname.startsWith(r));
-
-  if ((isProtected || isAdmin || isOperator) && !session) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirectTo', pathname);
-    return NextResponse.redirect(loginUrl);
+  // Locale cookie for i18n
+  const localeCookie = request.cookies.get('locale')?.value;
+  if (!localeCookie) {
+    supabaseResponse.cookies.set('locale', 'ar', { path: '/', maxAge: 60 * 60 * 24 * 365 });
   }
 
-  if (isAuth && session) {
+  // Redirect logged-in users away from auth pages
+  if (user && ['/login', '/register'].includes(pathname)) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  return response;
+  // Protect dashboard/app routes
+  const isProtected = PROTECTED_ROUTE_PREFIXES.some(p => pathname.startsWith(p));
+  if (isProtected && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    url.searchParams.set('redirectTo', pathname);
+    return NextResponse.redirect(url);
+  }
+
+  // Admin routes - basic check (full role check happens server-side)
+  const isAdminRoute = ADMIN_ROUTE_PREFIXES.some(p => pathname.startsWith(p));
+  if (isAdminRoute && !user) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  const isOperatorRoute = OPERATOR_ROUTE_PREFIXES.some(p => pathname.startsWith(p));
+  if (isOperatorRoute && !user) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  return supabaseResponse;
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|public|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };
