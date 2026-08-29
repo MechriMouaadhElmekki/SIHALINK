@@ -55,12 +55,17 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
       <head>
-        <link rel="icon"             href="/favicon.ico" />
-        <link rel="icon"             href="/icons/icon-192.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
+        {/*
+          favicon.ico — legacy browsers
+          icon-192.svg — modern browsers (SVG, scalable)
+          /icon.png and /apple-icon.png are injected automatically by Next.js
+          from app/icon.tsx and app/apple-icon.tsx — do NOT declare them here
+          to avoid duplicate <link> tags.
+        */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icons/icon-192.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* sw-register.js removed — registration handled by ServiceWorkerRegister component */}
       </head>
       <body className="min-h-screen bg-background antialiased">
         <ThemeProvider
