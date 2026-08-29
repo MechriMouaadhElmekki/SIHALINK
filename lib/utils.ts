@@ -1,112 +1,63 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import { format, formatDistanceToNow } from 'date-fns';
-import { ar, fr, enUS } from 'date-fns/locale';
-import type { Locale } from '@/types/database';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function getDateLocale(locale: Locale) {
-  switch (locale) {
-    case 'ar': return ar;
-    case 'fr': return fr;
-    default: return enUS;
-  }
-}
-
-export function formatDate(date: string | Date, locale: Locale = 'ar', formatStr = 'PPP') {
-  return format(new Date(date), formatStr, { locale: getDateLocale(locale) });
-}
-
-export function formatRelative(date: string | Date, locale: Locale = 'ar') {
-  return formatDistanceToNow(new Date(date), {
-    addSuffix: true,
-    locale: getDateLocale(locale),
-  });
-}
-
-export function getDir(locale: Locale): 'rtl' | 'ltr' {
-  return locale === 'ar' ? 'rtl' : 'ltr';
-}
-
-export function getPriorityColor(priority: string): string {
-  switch (priority) {
-    case 'CRITICAL': return 'text-red-600 bg-red-50 border-red-200';
-    case 'HIGH': return 'text-orange-600 bg-orange-50 border-orange-200';
-    case 'MEDIUM': return 'text-amber-600 bg-amber-50 border-amber-200';
-    case 'LOW': return 'text-green-600 bg-green-50 border-green-200';
-    default: return 'text-gray-600 bg-gray-50 border-gray-200';
-  }
+export function generateReportNumber(): string {
+  const now = new Date();
+  const yy = String(now.getFullYear()).slice(2);
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const rand = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+  return `SHL-${yy}${mm}${dd}-${rand}`;
 }
 
 export function getStatusColor(status: string): string {
-  switch (status) {
-    case 'DRAFT': return 'text-gray-600 bg-gray-100';
-    case 'SUBMITTED': return 'text-blue-600 bg-blue-100';
-    case 'RECEIVED': return 'text-indigo-600 bg-indigo-100';
-    case 'UNDER_REVIEW': return 'text-purple-600 bg-purple-100';
-    case 'ASSIGNED': return 'text-cyan-600 bg-cyan-100';
-    case 'ACKNOWLEDGED': return 'text-teal-600 bg-teal-100';
-    case 'IN_PROGRESS': return 'text-yellow-700 bg-yellow-100';
-    case 'RESOLVED': return 'text-green-600 bg-green-100';
-    case 'CANCELLED': return 'text-gray-500 bg-gray-100';
-    case 'REJECTED': return 'text-red-600 bg-red-100';
-    case 'FALSE_REPORT_REVIEW': return 'text-orange-600 bg-orange-100';
-    case 'CLOSED': return 'text-gray-400 bg-gray-50';
-    default: return 'text-gray-600 bg-gray-100';
-  }
+  const map: Record<string, string> = {
+    DRAFT:        'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+    SUBMITTED:    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    RECEIVED:     'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
+    UNDER_REVIEW: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+    ASSIGNED:     'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400',
+    ACKNOWLEDGED: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+    IN_PROGRESS:  'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+    RESOLVED:     'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    CANCELLED:    'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500',
+    REJECTED:     'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    CLOSED:       'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
+  };
+  return map[status] ?? 'bg-gray-100 text-gray-600';
 }
 
-export function getAppointmentStatusColor(status: string): string {
-  switch (status) {
-    case 'REQUESTED': return 'text-blue-600 bg-blue-100';
-    case 'CONFIRMED': return 'text-green-600 bg-green-100';
-    case 'RESCHEDULED': return 'text-amber-600 bg-amber-100';
-    case 'CANCELLED_BY_USER':
-    case 'CANCELLED_BY_DOCTOR': return 'text-red-600 bg-red-100';
-    case 'COMPLETED': return 'text-teal-600 bg-teal-100';
-    case 'NO_SHOW': return 'text-gray-500 bg-gray-100';
-    default: return 'text-gray-600 bg-gray-100';
-  }
+export function getPriorityColor(priority: string): string {
+  const map: Record<string, string> = {
+    CRITICAL: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700',
+    HIGH:     'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700',
+    MEDIUM:   'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-700',
+    LOW:      'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700',
+  };
+  return map[priority] ?? 'bg-gray-100 text-gray-600 border-gray-200';
 }
 
-export function truncate(str: string, length: number): string {
-  if (str.length <= length) return str;
-  return str.slice(0, length) + '...';
-}
-
-export function isValidUUID(str: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(str);
-}
-
-// Valid status transitions (mirrors database function)
-export const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
-  DRAFT: ['SUBMITTED', 'CANCELLED'],
-  SUBMITTED: ['RECEIVED', 'CANCELLED', 'REJECTED'],
-  RECEIVED: ['UNDER_REVIEW', 'ASSIGNED', 'REJECTED'],
-  UNDER_REVIEW: ['ASSIGNED', 'REJECTED', 'FALSE_REPORT_REVIEW'],
-  ASSIGNED: ['ACKNOWLEDGED', 'CANCELLED'],
-  ACKNOWLEDGED: ['IN_PROGRESS', 'CANCELLED'],
-  IN_PROGRESS: ['RESOLVED', 'FALSE_REPORT_REVIEW'],
-  RESOLVED: ['CLOSED', 'FALSE_REPORT_REVIEW'],
-  FALSE_REPORT_REVIEW: ['CLOSED', 'REJECTED'],
-  CANCELLED: ['CLOSED'],
-  REJECTED: ['CLOSED'],
-};
-
-export function canTransitionTo(from: string, to: string): boolean {
-  return VALID_STATUS_TRANSITIONS[from]?.includes(to) ?? false;
+export function formatRelative(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'الآن';
+  if (mins < 60) return `منذ ${mins} د.'`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `منذ ${hours} س.'`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `منذ ${days} ي.'`;
+  return new Date(dateStr).toLocaleDateString('ar-DZ', { day: 'numeric', month: 'short' });
 }
 
 export const WILAYAS = [
-  'أدرار', 'الشلف', 'الأغواط', 'أم البواقي', 'باتنة', 'بجاية', 'بسكرة', 'بشار',
-  'البليدة', 'البويرة', 'تمنراست', 'تبسة', 'تلمسان', 'تيارت', 'تيزي وزو', 'الجزائر',
-  'الجلفة', 'جيجل', 'سطيف', 'سعيدة', 'سكيكدة', 'سيدي بلعباس', 'عنابة', 'قالمة',
-  'قسنطينة', 'المدية', 'مستغانم', 'المسيلة', 'معسكر', 'ورقلة', 'وهران', 'البيض',
-  'إليزي', 'برج بوعريريج', 'بومرداس', 'الطارف', 'تندوف', 'تيسمسيلت', 'الوادي',
-  'خنشلة', 'سوق أهراس', 'تيبازة', 'ميلة', 'عين الدفلى', 'النعامة', 'عين تموشنت',
-  'غرداية', 'غليزان'
+  'أدرار','الشلف','أم البواقي','عين تيموشنت','باتنة','بجاية','بسكرة','بشار','البليدة','البويرة',
+  'تامنغست','تبسة','تيارت','تيزي وزو','تلمسان','تبسة غيرست','جيجل','جلفة','الجزائر','جيجل',
+  'خنشلة','سعيدة','سكيكدة','سطيف','سيدي بلعباس','سوق أهراس','طارق','تبسة','عين ديفلة','غرداية',
+  'غليزان','غارداية','وهران','الوادي','يلو','تيرت','أدرار','ميلة','مسكرة','مستغانم',
+  'المسيلة','النعامة','وهران','تبسة','ورقلة','تيارت','برج بوعريريج','إيليزي','تمنغست',
+  'برج بوجريريج','برهوم','تيسمسيلت','سي بلعباس','الجلفة','رليزان','مسيلة','أندف','برج بوجريريج',
 ];

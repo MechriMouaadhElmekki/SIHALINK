@@ -1,43 +1,22 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-
-function createSupabaseServerClient() {
-  const cookieStore = cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name) { return cookieStore.get(name)?.value; },
-        set(name, value, options) { cookieStore.set({ name, value, ...options }); },
-        remove(name, options) { cookieStore.set({ name, value: '', ...options }); },
-      },
-    }
-  );
-}
+import { createClient } from '@/lib/supabase/server';
 
 export async function GET(
-  _request: NextRequest,
+  _req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const supabase = createClient();
+  const { data: { user }, error: authErr } = await supabase.auth.getUser();
+  if (authErr || !user) return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
 
-  const { data: report, error } = await supabase
+  const { data, error } = await supabase
     .from('emergency_reports')
-    .select(`
-      *,
-      emergency_locations(*),
-      emergency_report_events(* ORDER BY created_at ASC),
-      emergency_media(*)
-    `)
+    .select('*')
     .eq('id', params.id)
-    .eq('user_id', user.id) // RLS enforced at DB but also here
+    .eq('user_id', user.id)
     .single();
 
-  if (error || !report) return NextResponse.json({ error: 'Report not found' }, { status: 404 });
+  if (error || !data) return NextResponse.json({ error: 'لم يتم العثور على البلاغ' }, { status: 404 });
 
-  return NextResponse.json({ report });
+  return NextResponse.json(data);
 }
