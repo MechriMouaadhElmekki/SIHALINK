@@ -1,10 +1,5 @@
 export * from './database';
-
-export interface ApiResponse<T = unknown> {
-  data: T | null;
-  error: string | null;
-  message?: string;
-}
+export * from './api';
 
 export interface PaginatedResponse<T> {
   data: T[];

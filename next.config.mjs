@@ -21,13 +21,12 @@ const nextConfig = {
 
   experimental: {
     serverActions: {
-      // localhost for dev + staging/production domains
-      // Add your Vercel preview URL pattern if needed: *.vercel.app
+      // Exact origins only — Next.js does not support wildcard strings here.
+      // Add Vercel preview URLs explicitly if/when preview deployments are used.
       allowedOrigins: [
         'localhost:3000',
         'sihalink.dz',
         'www.sihalink.dz',
-        '*.sihalink.dz',
       ],
     },
   },
@@ -84,6 +83,8 @@ const nextConfig = {
               // Sentry ingest added to connect-src
               "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.sentry.io https://*.ingest.sentry.io",
               "media-src 'self' blob: https://*.supabase.co",
+              // Allow service worker scripts from same origin
+              "worker-src 'self'",
               "object-src 'none'",
               "frame-ancestors 'none'",
               "base-uri 'self'",

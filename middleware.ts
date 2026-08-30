@@ -15,6 +15,9 @@ const PUBLIC_PATHS = [
   // Sentry tunnel route (set via tunnelRoute in next.config.mjs).
   // Must be public so Sentry can POST error events even before auth.
   '/monitoring',
+  // Health check endpoint — must be accessible without auth for uptime
+  // monitors, load-balancer probes, and CI smoke tests.
+  '/api/health',
   // PWA assets — must be accessible without auth so the service worker
   // can install and the offline page works for unauthenticated visits.
   '/sw.js',
