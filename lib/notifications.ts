@@ -1,14 +1,24 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 
+// Notification type values must match the CHECK constraint in the canonical schema:
+// CHECK (type IN ('emergency_update','appointment_update','security_alert',
+//                 'system_announcement','account_notification'))
+type NotificationType =
+  | 'emergency_update'
+  | 'appointment_update'
+  | 'security_alert'
+  | 'system_announcement'
+  | 'account_notification';
+
 interface NotificationPayload {
   user_id: string;
-  type: 'EMERGENCY_UPDATE' | 'APPOINTMENT_UPDATE' | 'SECURITY_ALERT' | 'SYSTEM_ANNOUNCEMENT' | 'ACCOUNT_NOTIFICATION';
+  type: NotificationType;
   title_ar: string;
-  title_fr: string;
-  title_en: string;
+  title_fr?: string;
+  title_en?: string;
   body_ar: string;
-  body_fr: string;
-  body_en: string;
+  body_fr?: string;
+  body_en?: string;
   related_entity_type?: string;
   related_entity_id?: string;
 }
