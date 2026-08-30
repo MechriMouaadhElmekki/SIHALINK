@@ -1,7 +1,7 @@
-import { getSupabaseServiceClient } from './supabase/server';
+import { createAdminClient } from './supabase/admin';
 
 export async function generateReportNumber(): Promise<string> {
-  const supabase = getSupabaseServiceClient();
+  const supabase = createAdminClient();
   const { data, error } = await supabase.rpc('generate_report_number');
   if (error || !data) {
     // Fallback: timestamp-based (should not happen in production)

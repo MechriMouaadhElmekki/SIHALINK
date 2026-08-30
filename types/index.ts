@@ -39,8 +39,6 @@ export interface ReportNumberGenerator {
   generate(year: number, sequence: number): string;
 }
 
-export type Locale = 'ar' | 'fr' | 'en';
-
 export interface DashboardStats {
   total_users: number;
   active_users: number;

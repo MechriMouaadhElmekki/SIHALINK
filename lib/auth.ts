@@ -29,13 +29,26 @@ export async function getUserRoles(userId?: string): Promise<UserRole[]> {
   const uid = userId ?? (await supabase.auth.getUser()).data.user?.id;
   if (!uid) return [];
 
-  const { data } = await supabase
+  // Step 1: fetch role_id values for this user
+  const { data: userRoleRows } = await supabase
     .from('user_roles')
-    .select('roles(name)')
+    .select('role_id')
     .eq('user_id', uid);
 
-  if (!data) return [];
-  return data.map((r: { roles: { name: string } | null }) => r.roles?.name).filter(Boolean) as UserRole[];
+  if (!userRoleRows || userRoleRows.length === 0) return [];
+
+  const roleIds = userRoleRows.map((r: { role_id: string }) => r.role_id);
+
+  // Step 2: resolve role names from the roles table
+  const { data: roleRows } = await supabase
+    .from('roles')
+    .select('name')
+    .in('id', roleIds);
+
+  if (!roleRows) return [];
+  return roleRows
+    .map((r: { name: string }) => r.name)
+    .filter(Boolean) as UserRole[];
 }
 
 export async function requireAuth() {

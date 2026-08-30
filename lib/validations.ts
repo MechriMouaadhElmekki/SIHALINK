@@ -27,10 +27,10 @@ export const resetPasswordSchema = z.object({
   password: z.string().min(8, 'كلمة المرور يجب أن تكون 8 أحرف على الأقل')
     .regex(/[A-Z]/, 'يجب أن تحتوي كلمة المرور على حرف كبير')
     .regex(/[0-9]/, 'يجب أن تحتوي كلمة المرور على رقم'),
-  confirmPassword: z.string(),
-}).refine(data => data.password === data.confirmPassword, {
+  confirm_password: z.string(),
+}).refine(data => data.password === data.confirm_password, {
   message: 'كلمتا المرور غير متطابقتان',
-  path: ['confirmPassword'],
+  path: ['confirm_password'],
 });
 
 // ============================================================
