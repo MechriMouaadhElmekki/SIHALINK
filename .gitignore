@@ -41,3 +41,6 @@ next-env.d.ts
 
 # supabase local
 .supabase/
+
+# Local Semgrep Guardian state
+.semgrep/
